@@ -95,7 +95,7 @@ export class DiscountCodeService {
     let result = [];
     const descData = {
       desc1: `Giảm ${data.promotionValue}${data.promotionOption === PromotionOption.Percent ? '%' : 'đ'} cho 2 sảm phẩm`,
-      desc2: 'Tổng giá trị sản phẩm được khuyến mãi tối thiểu ${this.decimalPipe.transform(data.minValue)}đ',
+      desc2: `Tổng giá trị sản phẩm được khuyến mãi tối thiểu ${this.decimalPipe.transform(data.minValue)}đ`,
       desc3: '',
       desc4: 'Mã được sử dụng ${data.numberUsageLimits} lần',
       desc5: 'Áp dụng từ ${data.startTime} đến ${data.endTime}',

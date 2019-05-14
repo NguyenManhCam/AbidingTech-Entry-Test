@@ -6,66 +6,56 @@ using back_end.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace back_end.Controllers
-{
-    [Route("api/[controller]")]
+namespace back_end.Controllers {
+    [Route ("api/[controller]")]
     [ApiController]
-    public class DiscountCodeController : ControllerBase
-    {
+    public class DiscountCodeController : ControllerBase {
         private readonly DiscountCodeContext _context;
 
-        public DiscountCodeController(DiscountCodeContext context)
-        {
+        public DiscountCodeController (DiscountCodeContext context) {
             _context = context;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DiscountCode>>> Get()
-        {
-            return await _context.DiscountCodes.ToListAsync();
+        public async Task<ActionResult<IEnumerable<DiscountCode>>> Get () {
+            return await _context.DiscountCodes.ToListAsync ();
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<DiscountCode>> FindOne(long id)
-        {
-            var discountCode = await _context.DiscountCodes.FindAsync(id);
+        [HttpGet ("{id}")]
+        public async Task<ActionResult<DiscountCode>> FindOne (long id) {
+            var discountCode = await _context.DiscountCodes.FindAsync (id);
 
-            if (discountCode == null)
-            {
-                return NotFound();
+            if (discountCode == null) {
+                return NotFound ();
             }
 
             return discountCode;
         }
 
         [HttpPost]
-        public async Task<ActionResult<DiscountCode>> Post(DiscountCode item)
-        {
-            _context.DiscountCodes.Add(item);
-            await _context.SaveChangesAsync();
+        public async Task<ActionResult<DiscountCode>> Post (DiscountCode item) {
+            _context.DiscountCodes.Add (item);
+            await _context.SaveChangesAsync ();
 
-            return CreatedAtAction(nameof(FindOne), new { id = 1 }, item);
+            return CreatedAtAction (nameof (FindOne), new { id = 1 }, item);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(long id, DiscountCode item)
-        {
-            if (false)
-            {
-                return BadRequest();
+        [HttpPut ("{id}")]
+        public async Task<IActionResult> Put (long id, DiscountCode item) {
+            if (false) {
+                return BadRequest ();
             }
 
-            _context.Entry(item).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            _context.Entry (item).State = EntityState.Modified;
+            await _context.SaveChangesAsync ();
 
-            return NoContent();
+            return NoContent ();
         }
 
-        [HttpPatch("{id}")]
-        public async Task<IActionResult> Patch(long id, ActionUpdate action)
-        {
-            switch (action)
-            {
+        [HttpPatch ("{id}")]
+        public async Task<IActionResult> Patch (long id, ActionUpdate action) {
+
+            switch (action) {
                 case ActionUpdate.Continue:
                     break;
                 case ActionUpdate.Stop:
@@ -74,23 +64,21 @@ namespace back_end.Controllers
                     break;
             }
 
-            return NoContent();
+            return NoContent ();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(long id)
-        {
-            var todoItem = await _context.DiscountCodes.FindAsync(id);
+        [HttpDelete ("{id}")]
+        public async Task<IActionResult> Delete (long id) {
+            var todoItem = await _context.DiscountCodes.FindAsync (id);
 
-            if (todoItem == null)
-            {
-                return NotFound();
+            if (todoItem == null) {
+                return NotFound ();
             }
 
-            _context.DiscountCodes.Remove(todoItem);
-            await _context.SaveChangesAsync();
+            _context.DiscountCodes.Remove (todoItem);
+            await _context.SaveChangesAsync ();
 
-            return NoContent();
+            return NoContent ();
         }
     }
 }
