@@ -52,6 +52,26 @@ namespace back_end.Models
         }
     }
 
+    public class Paging
+    {
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+    }
+
+    public class PagingData
+    {
+        public int TotalItems { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public double TotalPages { get; set; }
+        public ICollection<DiscountCode> DiscountCodes { get; set; }
+        public PagingData(Paging paging)
+        {
+            PageNumber = paging.PageNumber;
+            PageSize = paging.PageSize;
+        }
+    }
+
     public class Category
     {
         public long Id { get; set; }

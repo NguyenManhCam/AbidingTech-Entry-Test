@@ -30,9 +30,13 @@ namespace back_end.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DiscountCode>>> Get()
+        public async Task<PagingData> Get([FromQuery]Paging paging)
         {
-            return await _context.DiscountCodes.ToListAsync();
+            var pagingData = new PagingData(paging);
+            pagingData.DiscountCodes = await _context.DiscountCodes.Skip((paging.PageNumber - 1) * paging.PageSize).Take(paging.PageSize).ToListAsync();
+            pagingData.TotalItems = await _context.DiscountCodes.CountAsync();
+            pagingData.TotalPages = Math.Ceiling(pagingData.TotalItems / (float)paging.PageSize);
+            return pagingData;
         }
 
         [HttpGet("{id}")]
@@ -99,7 +103,7 @@ namespace back_end.Controllers
         }
 
         [HttpGet("/api/[controller]/GetCategory")]
-        public async Task<ActionResult<IEnumerable<object>>> GetCategory()
+        public async Task<object> GetCategory()
         {
             return await _context.Products.Select(x => new { Id = x.Id, Name = x.Name }).ToListAsync();
         }
