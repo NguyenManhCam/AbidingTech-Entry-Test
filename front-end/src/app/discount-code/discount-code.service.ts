@@ -88,7 +88,14 @@ export class DiscountCodeService {
       );
   }
 
-  deleteDiscountCode(): Observable<DiscountCode[]> {
+  patchDiscountCode(data: DiscountCode): Observable<DiscountCode[]> {
+    return this.http.patch<DiscountCode[]>(this.baseUrl, data, { headers: new HttpHeaders() })
+      .pipe(
+        catchError(this.handleError<DiscountCode[]>('updateHeroes', []))
+      );
+  }
+
+  deleteDiscountCode(listId: number): Observable<DiscountCode[]> {
     return this.http.delete<DiscountCode[]>(this.baseUrl)
       .pipe(
         catchError(this.handleError<DiscountCode[]>('deleteHeroes', []))

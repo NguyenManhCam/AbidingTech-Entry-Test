@@ -1,3 +1,187 @@
-<p>
-  discount-code-data works!
-</p>
+ <div class="row">
+   <div class="col-md-4 order-md-2 mb-4">
+     <h4 class="d-flex justify-content-between align-items-center mb-3">
+       <span class="text-muted">Tổng quan chương trình khuyến mại</span>
+       <span class="badge badge-secondary badge-pill">3</span>
+     </h4>
+     <ul class="list-group mb-3">
+       <li class="list-group-item d-flex justify-content-between lh-condensed">
+         <div>
+           <h6 class="my-0">Product name</h6>
+           <small class="text-muted">Brief description</small>
+         </div>
+         <span class="text-muted">$12</span>
+       </li>
+       <li class="list-group-item d-flex justify-content-between lh-condensed">
+         <div>
+           <h6 class="my-0">Second product</h6>
+           <small class="text-muted">Brief description</small>
+         </div>
+         <span class="text-muted">$8</span>
+       </li>
+       <li class="list-group-item d-flex justify-content-between lh-condensed">
+         <div>
+           <h6 class="my-0">Third item</h6>
+           <small class="text-muted">Brief description</small>
+         </div>
+         <span class="text-muted">$5</span>
+       </li>
+       <li class="list-group-item d-flex justify-content-between bg-light">
+         <div class="text-success">
+           <h6 class="my-0">Promo code</h6>
+           <small>EXAMPLECODE</small>
+         </div>
+         <span class="text-success">-$5</span>
+       </li>
+       <li class="list-group-item d-flex justify-content-between">
+         <span>Total (USD)</span>
+         <strong>$20</strong>
+       </li>
+     </ul>
+   </div>
+   <div class="col-md-8 order-md-1">
+     <h4 class="mb-3">Thêm mới khuyến mãi</h4>
+     <form class="needs-validation" novalidate>
+       <ul class="nav nav-tabs" id="myTab" role="tablist">
+         <li class="nav-item">
+           <a class="nav-link active" id="discount-code-tab" data-toggle="tab" href="#discount-code" role="tab"
+             aria-controls="discount-code" aria-selected="true">Mã khuyến mãi</a>
+         </li>
+         <li class="nav-item">
+           <a class="nav-link" id="promotion-option-tab" data-toggle="tab" href="#promotion-option" role="tab"
+             aria-controls="promotion-option" aria-selected="false">Tùy chọn khuyến mãi</a>
+         </li>
+         <li class="nav-item">
+           <a class="nav-link" id="apply-with-tab" data-toggle="tab" href="#apply-with" role="tab"
+             aria-controls="apply-with" aria-selected="false">Áp dụng với</a>
+         </li>
+         <li class="nav-item">
+           <a class="nav-link" id="customer-group-tab" data-toggle="tab" href="#customer-group" role="tab"
+             aria-controls="customer-group" aria-selected="false">Nhóm khách hàng</a>
+         </li>
+         <li class="nav-item">
+           <a class="nav-link" id="limit-tab" data-toggle="tab" href="#limit" role="tab" aria-controls="limit"
+             aria-selected="false">Giới hạn sử dụng</a>
+         </li>
+         <li class="nav-item">
+           <a class="nav-link" id="time-tab" data-toggle="tab" href="#time" role="tab" aria-controls="time"
+             aria-selected="false">Thời gian</a>
+         </li>
+       </ul>
+       <div class="tab-content" id="myTabContent">
+         <div class="tab-pane fade show active" id="discount-code" role="tabpanel" aria-labelledby="discount-code-tab">
+           <div class="form-group">
+             <label for="exampleFormControlInput1"></label>
+             <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Nhập mã khuyến mại">
+             <span>Khách hàng sẽ nhập mã khuyến mại này ở màn hình thanh toán</span>
+           </div>
+         </div>
+         <div class="tab-pane fade" id="promotion-option" role="tabpanel" aria-labelledby="promotion-option-tab">
+           <div class="form-row">
+             <div class="col-md-6">
+               <label for="inputState">Loại khuyến mại</label>
+               <select id="inputState" class="form-control custom-select">
+                 <option *ngFor="let item of listPromotionOption; let i=index" value="{{item.id}}">{{item.name}}
+                 </option>
+               </select>
+             </div>
+             <div class="col-md-6">
+               <label for="validationTooltipUsername">Giá trị khuyến mại</label>
+               <div class="input-group">
+                 <input type="text" class="form-control" id="validationTooltipUsername" placeholder="Giá trị khuyến mại"
+                   aria-describedby="validationTooltipUsernamePrepend" required>
+                 <div class="input-group-prepend">
+                   <span class="input-group-text" id="validationTooltipUsernamePrepend">%</span>
+                 </div>
+               </div>
+             </div>
+             <div class="col-md-12 pt-2">
+               <div class="custom-control custom-checkbox">
+                 <input type="checkbox" class="custom-control-input" id="customCheck1">
+                 <label class="custom-control-label" for="customCheck1">Áp dụng với đơn hàng có tổng giá trị sản phẩm
+                   thuộc chương trình khuyến mại từ</label>
+               </div>
+             </div>
+             <div class="col-md-12">
+               <div class="input-group">
+                 <input type="text" class="form-control ml-25" id="exampleCheck1" placeholder="Giá trị khuyến mại"
+                   aria-describedby="validationTooltipUsernamePrepend" required>
+                 <div class="input-group-prepend">
+                   <span class="input-group-text" id="exampleCheck1">đ</span>
+                 </div>
+               </div>
+             </div>
+           </div>
+         </div>
+         <div class="tab-pane fade" id="apply-with" role="tabpanel" aria-labelledby="apply-with-tab">
+           <div *ngFor="let item of listApplyWith; let i=index" class="custom-control custom-radio">
+             <input class="custom-control-input" type="radio" name="exampleRadios" id="{{item.id}}" value="{{item.id}}"
+               checked>
+             <label class="custom-control-label" for="exampleRadios1">
+               {{item.name}}
+             </label>
+           </div>
+           <div class="input-group">
+             <input type="text" class="form-control" aria-label="Text input with segmented dropdown button">
+             <div class="input-group-append">
+               <button type="button" class="btn btn-outline-secondary">Tìm kiếm</button>
+             </div>
+           </div>
+         </div>
+         <div class="tab-pane fade" id="customer-group" role="tabpanel" aria-labelledby="customer-group-tab">
+           <div *ngFor="let item of listCustomerGroupEnum; let i=index" class="custom-control custom-radio">
+             <input class="custom-control-input" type="radio" name="exampleRadios" id="{{item.id}}" value="{{item.id}}"
+               checked>
+             <label class="custom-control-label" for="exampleRadios1">
+               {{item.name}}
+             </label>
+           </div>
+           <div class="input-group">
+             <input type="text" class="form-control" aria-label="Text input with segmented dropdown button">
+             <div class="input-group-append">
+               <button type="button" class="btn btn-outline-secondary">Tìm kiếm</button>
+             </div>
+           </div>
+         </div>
+         <div class="tab-pane fade" id="limit" role="tabpanel" aria-labelledby="limit-tab">
+           <div class="form-row">
+             <div class="col-md-12 pt-2">
+               <div class="custom-control custom-checkbox">
+                 <input type="checkbox" class="custom-control-input" id="customCheck1">
+                 <label class="custom-control-label" for="customCheck1">Giới hạn số lần mã giảm giá được áp dụng</label>
+               </div>
+             </div>
+             <div class="col-md-6">
+               <input type="text" class="form-control ml-25" id="exampleCheck1" placeholder="Giá trị khuyến mại"
+                 aria-describedby="validationTooltipUsernamePrepend" required>
+             </div>
+             <div class="col-md-12 pt-2">
+               <div class="custom-control custom-checkbox">
+                 <input type="checkbox" class="custom-control-input" id="customCheck1">
+                 <label class="custom-control-label" for="customCheck1">Giới hạn mỗi khách hàng chỉ được sử dụng mà giảm
+                   giá này 1 lần</label>
+               </div>
+               <span class="ml-25">Kiểm tra bằng email</span>
+             </div>
+           </div>
+         </div>
+         <div class="tab-pane fade" id="time" role="tabpanel" aria-labelledby="time-tab">
+           <div class="form-row">
+             <div class="col-md-6">
+               <input type="text" placeholder="Datepicker" class="form-control"
+                 [bsConfig]="{ dateInputFormat: 'MM/DD/YYYY HH:mm' }" bsDatepicker>
+             </div>
+             <div class="col-md-6">
+               <timepicker></timepicker>
+             </div>
+           </div>
+         </div>
+       </div>
+       <hr class="mb-4">
+       <div class="row float-right">
+         <button (click)="true" class="btn btn-light mr-2">Hủy</button>
+         <button class="btn btn-info" type="submit">Lưu</button>
+       </div>
+     </form>
+   </div>
+ </div>

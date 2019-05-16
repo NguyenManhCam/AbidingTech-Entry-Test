@@ -13,9 +13,9 @@ namespace back_end.Models
         public decimal PromotionValue { get; set; }
         public decimal MinValue { get; set; }
         public ApplyWith ApplyWith { get; set; }
-        public ICollection<long> ApplyWithIds { get; set; }
+        public List<long> ApplyWithIds { get; }
         public CustomerGroupEnum CustomerGroup { get; set; }
-        public ICollection<long> CustomerGroupIds { get; set; }
+        public List<long> CustomerGroupIds { get; }
         public int NumberUsageLimits { get; set; }
         public bool CustomerUsageLimits { get; set; }
         public Status Status { get; set; }
@@ -24,10 +24,15 @@ namespace back_end.Models
         public DateTime EndTime { get; set; }
         private void Continue()
         {
-            Status = Status.Applied;
             var timeSpan = EndTime - StartTime;
             StartTime = DateTime.Now;
             EndTime.Add(timeSpan - (EndTime - StartTime));
+            Status = Status.Applied;
+        }
+        private void Stop()
+        {
+            EndTime = DateTime.Now;
+            Status = Status.StopApplying;
         }
         public void Update(ActionUpdate action)
         {
@@ -37,6 +42,7 @@ namespace back_end.Models
                     Continue();
                     break;
                 case ActionUpdate.Stop:
+                    Stop();
                     break;
                 default:
                     break;
@@ -50,9 +56,20 @@ namespace back_end.Models
         public string Name { get; set; }
     }
 
+    public class DiscountCodeJunction
+    {
+        public long DiscountCodeId { get; set; }
+        public int Id { get; set; }
+    }
+
     public class Product : Category { }
     public class ProductGroup : Category { }
-    // public class CustomerGroup : Category { }
+    public class CustomerGroup : Category { }
+
+    public class DiscountCodeProduct : DiscountCodeJunction { }
+    public class DiscountCodeProductGroup : DiscountCodeJunction { }
+    public class DiscountCodeCustomerGroup : DiscountCodeJunction { }
+
 
     public class DiscountCodeContext : DbContext
     {
