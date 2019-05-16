@@ -20,9 +20,9 @@ namespace back_end.Models
         public int AmountUsed { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public ICollection<DiscountCodeProduct> DiscountCodeProducts { get; set; }
-        public ICollection<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; }
-        public ICollection<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; }
+        public virtual ICollection<DiscountCodeProduct> DiscountCodeProducts { get; set; }
+        public virtual ICollection<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; }
+        public virtual ICollection<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; }
 
         private void Continue()
         {
@@ -62,20 +62,20 @@ namespace back_end.Models
     {
         public long DiscountCodeId { get; set; }
         public long Id { get; set; }
-        public DiscountCode DiscountCode { get; set; }
+        public virtual DiscountCode DiscountCode { get; set; }
     }
 
     public class Product : Category
     {
-        public ICollection<DiscountCodeProduct> DiscountCodeProducts { get; set; }
+        public virtual ICollection<DiscountCodeProduct> DiscountCodeProducts { get; set; }
     }
     public class ProductGroup : Category
     {
-        public ICollection<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; }
+        public virtual ICollection<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; }
     }
     public class CustomerGroup : Category
     {
-        public ICollection<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; }
+        public virtual ICollection<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; }
     }
 
     public class DiscountCodeProduct : DiscountCodeJunction
@@ -129,30 +129,14 @@ namespace back_end.Models
             modelBuilder.Entity<DiscountCodeCustomerGroup>().HasKey(x => new { x.Id, x.DiscountCodeId });
 
             modelBuilder.Entity<DiscountCodeCustomerGroup>()
-            .HasOne(dcp => dcp.DiscountCode)
+            .HasOne(dccg => dccg.DiscountCode)
             .WithMany(dc => dc.DiscountCodeCustomerGroups)
-            .HasForeignKey(dcp => dcp.DiscountCodeId);
+            .HasForeignKey(dccg => dccg.DiscountCodeId);
 
             modelBuilder.Entity<DiscountCodeCustomerGroup>()
-            .HasOne(dcp => dcp.CustomerGroup)
-            .WithMany(p => p.DiscountCodeCustomerGroups)
-            .HasForeignKey(dcp => dcp.Id);
-
-            modelBuilder.Entity<Product>().HasData(
-                new Product { Id = 1, Name = "Product 1" },
-                new Product { Id = 2, Name = "Product 2" },
-                new Product { Id = 3, Name = "Product 3" }
-            );
-            modelBuilder.Entity<ProductGroup>().HasData(
-                new ProductGroup { Id = 1, Name = "ProductGroup 1" },
-                new ProductGroup { Id = 2, Name = "ProductGroup 2" },
-                new ProductGroup { Id = 3, Name = "ProductGroup 3" }
-            );
-            modelBuilder.Entity<CustomerGroup>().HasData(
-                new CustomerGroup { Id = 1, Name = "CustomerGroup 1" },
-                new CustomerGroup { Id = 2, Name = "CustomerGroup 2" },
-                new CustomerGroup { Id = 3, Name = "CustomerGroup 3" }
-            );
+            .HasOne(dccg => dccg.CustomerGroup)
+            .WithMany(cg => cg.DiscountCodeCustomerGroups)
+            .HasForeignKey(dccg => dccg.Id);
         }
     }
 

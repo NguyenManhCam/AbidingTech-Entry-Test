@@ -49,11 +49,11 @@ namespace back_end.Controllers
         }
 
         [HttpPost]
-        public async Task<long> Post(DiscountCode item)
+        public async Task<DiscountCode> Post(DiscountCode item)
         {
             _context.DiscountCodes.Add(item);
             await _context.SaveChangesAsync();
-            return item.Id;
+            return item;
         }
 
         [HttpPut("{id}")]
