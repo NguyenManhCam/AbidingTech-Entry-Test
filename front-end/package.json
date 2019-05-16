@@ -11,7 +11,7 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "~7.2.15",
+    "@angular/animations": "^7.2.15",
     "@angular/common": "~7.2.15",
     "@angular/compiler": "~7.2.15",
     "@angular/core": "~7.2.15",
@@ -22,9 +22,12 @@
     "@angular/router": "~7.2.15",
     "core-js": "^2.5.4",
     "ng-pick-datetime": "^7.0.0",
+    "ng-zorro-antd": "^7.3.3",
     "ngx-bootstrap": "^4.1.1",
+    "ngx-mask": "^7.9.9",
     "popper.js": "^1.15.0",
     "rxjs": "~6.5.2",
+    "voucher-code-generator": "^1.1.1",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {

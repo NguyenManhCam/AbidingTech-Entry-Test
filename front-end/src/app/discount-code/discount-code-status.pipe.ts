@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { Status, DiscountCodeService } from './discount-code.service'
 
 @Pipe({
-  name: 'DiscountCodeStatus'
+  name: 'discountCodeStatus'
 })
 export class DiscountCodePipe implements PipeTransform {
 

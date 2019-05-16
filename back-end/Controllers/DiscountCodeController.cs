@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using back_end.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace back_end.Controllers
 {
@@ -17,6 +18,15 @@ namespace back_end.Controllers
         public DiscountCodeController(DiscountCodeContext context)
         {
             _context = context;
+            if (!_context.Products.Any())
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    _context.Products.Add(new Product { Name = $"Product {i + 1}" });
+                    _context.ProductGroups.Add(new ProductGroup { Name = $"Product Group {i + 1}" });
+                    _context.CustomerGroups.Add(new CustomerGroup { Name = $"CustomerGroup {i + 1}" });
+                }
+            };
         }
 
         [HttpGet]
@@ -39,11 +49,11 @@ namespace back_end.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<DiscountCode>> Post(DiscountCode item)
+        public async Task<long> Post(DiscountCode item)
         {
             _context.DiscountCodes.Add(item);
             await _context.SaveChangesAsync();
-            return item;
+            return item.Id;
         }
 
         [HttpPut("{id}")]
@@ -86,6 +96,12 @@ namespace back_end.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpGet("/api/[controller]/GetCategory")]
+        public async Task<ActionResult<IEnumerable<object>>> GetCategory()
+        {
+            return await _context.Products.Select(x => new { Id = x.Id, Name = x.Name }).ToListAsync();
         }
     }
 }

@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DatePipe } from '@angular/common';
+import * as voucherCodes from 'voucher-code-generator';
 
 
 export enum PromotionOption {
@@ -35,11 +36,13 @@ export class Category {
 export class DiscountCode {
   id?: number;
   code: string;
-  promotionOption: PromotionOption
+  promotionOption: PromotionOption = PromotionOption.Percent
   promotionValue: number
   minValue: number
   applyWith: ApplyWith = ApplyWith.AllOrder
   applyWithIds?: number[]
+  products: Category;
+  productGroups: Category;
   customerGroup: CustomerGroupEnum = CustomerGroupEnum.All
   customerGroupIds?: number[]
   numberUsageLimits?: number
@@ -47,7 +50,7 @@ export class DiscountCode {
   status: Status = Status.NotYetApplied
   amountUsed: number = 0
   startTime: Date = new Date
-  endTime: Date
+  endTime?: Date
 }
 
 @Injectable({
@@ -57,14 +60,16 @@ export class DiscountCode {
 export class DiscountCodeService {
 
   listStatus: Category[] = [
-    { id: Status.Applied, name: '' },
-    { id: Status.NotYetApplied, name: '' },
-    { id: Status.StopApplying, name: '' }
+    { id: Status.Applied, name: 'Đang áp dụng' },
+    { id: Status.NotYetApplied, name: 'Chưa áp dụng' },
+    { id: Status.StopApplying, name: 'Ngừng áp dụng' }
   ];
   private baseUrl = '';
+  dateFormat = 'd/M/yy h:m a';
   constructor(
     private http: HttpClient,
-    private decimalPipe: DecimalPipe
+    private decimalPipe: DecimalPipe,
+    private datePipe: DatePipe
   ) { }
 
   getDiscountCode(): Observable<DiscountCode[]> {
@@ -109,9 +114,9 @@ export class DiscountCodeService {
     };
   }
 
-  getDesc(data: DiscountCode, name: { applyWithName?: string, customerGroupName?: string }): string[] {
+  getDesc(data: DiscountCode, name: { applyWithName?: string, customerGroupName?: string }, isDetail = true): string[] {
     let result = [];
-    const unit = data.promotionOption === PromotionOption.Percent ? '%' : 'đ';
+    const unit = data.promotionOption == PromotionOption.Percent ? '%' : 'đ';
     let applyWith = '';
     switch (data.applyWith) {
       case ApplyWith.AllOrder:
@@ -137,22 +142,32 @@ export class DiscountCodeService {
       default:
         break;
     }
+    const endTime = data.endTime ? ` đến ${this.datePipe.transform(data.endTime, this.dateFormat)}` : '';
     const customerUsageLimits = data.customerUsageLimits ? 'ỗi khách hàng được sử dụng 1 lần' : '';
-    const numberUsageLimits = data.numberUsageLimits ? 'Mã được sử dụng ${data.numberUsageLimits} lần' : '';
-    const seperate = numberUsageLimits ? ', m' : 'M';
+    const numberUsageLimits = data.numberUsageLimits ? `Mã được sử dụng ${this.decimalPipe.transform(data.numberUsageLimits)} lần` : '';
+    const seperate = numberUsageLimits && customerUsageLimits ? ', m' : customerUsageLimits ? 'M' : '';
     const descData = {
-      desc1: `Giảm ${data.promotionValue}${unit} cho ${applyWith}`,
-      desc2: `Tổng giá trị sản phẩm được khuyến mãi tối thiểu ${this.decimalPipe.transform(data.minValue)}đ`,
+      desc1: data.promotionValue ? `Giảm ${this.decimalPipe.transform(data.promotionValue)}${unit} cho ${applyWith}` : '',
+      desc2: data.minValue ? `Tổng giá trị sản phẩm được khuyến mãi tối thiểu ${this.decimalPipe.transform(data.minValue)}đ` : '',
       desc3: `Áp dụng với ${customerGroup}`,
       desc4: `${numberUsageLimits}${seperate}${customerUsageLimits}`,
-      desc5: 'Áp dụng từ ${data.startTime} đến ${data.endTime}',
+      desc5: `Áp dụng từ ${this.datePipe.transform(data.startTime, this.dateFormat)}${endTime}`,
     }
     Object.keys(descData).forEach(key => {
       if (descData[key]) {
         result.push(descData[key]);
       }
     });
+    if (!isDetail) result.pop();
     return result;
+  }
+
+  generateCode(): string {
+    let code = voucherCodes.generate({
+      length: 10,
+      charset: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    });
+    return code[0];
   }
 
 }

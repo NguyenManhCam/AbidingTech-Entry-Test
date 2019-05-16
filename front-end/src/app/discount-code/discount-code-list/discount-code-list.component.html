@@ -17,8 +17,9 @@
             <div class="btn-group">
               <button type="button" class="btn btn-light">
                 <div class="custom-control custom-checkbox">
-                  <input type="checkbox" class="custom-control-input" id="customCheck0" checked>
-                  <label class="custom-control-label" for="customCheck0">1</label>
+                  <input type="checkbox" class="custom-control-input" id="checkAll" [checked]="isAllChecked"
+                    (change)="onCheckAll($event.target.checked)">
+                  <label class="custom-control-label" for="checkAll">{{selectedData.length || null}}</label>
                 </div>
               </button>
               <button type="button" class="btn btn-light dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
@@ -33,50 +34,38 @@
           </th>
           <th scope="col">Chi tiết</th>
           <th scope="col">Trạng thái</th>
-          <th scope="col">Đã dùng</th>
+          <th class="th-80" scope="col">Đã dùng</th>
           <th scope="col">Bắt đầu</th>
-          <th scope="col">Kết thúc</th>
+          <th class="th-80" scope="col">Kết thúc</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
+        <tr *ngFor="let item of data">
           <td class="text-center">
             <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customCheck1" checked>
-              <label class="custom-control-label" for="customCheck1"></label>
+              <input type="checkbox" class="custom-control-input" (change)="onCheck($event.target.checked, item.id)"
+                [checked]="isSelected(item.id)" id="{{item.id}}">
+              <label class="custom-control-label" for="{{item.id}}"></label>
             </div>
           </td>
-          <td>Bootstrap 4 CDN and Starter Template</td>
-          <td><span class="badge badge-secondary">Primary</span></td>
-          <td>Cristina</td>
-          <td>2.846</td>
-          <td>2.846</td>
-        </tr>
-        <tr>
+          <td>
+            <span *ngFor="let desc of discountCodeService.getDesc(item, null, false); let i=index">
+              <ng-container *ngIf="i === 0; else elseTemplate">
+                {{desc}}&nbsp;
+              </ng-container>
+              <ng-template #elseTemplate>
+                &bull; &nbsp;{{desc}}&nbsp;
+              </ng-template>
+
+            </span>
+          </td>
+          <td><span class="badge" [ngClass]="{'badge-secondary': 0 === statusEnum.NotYetApplied,'badge-success': 1 === statusEnum.NotYetApplied,'badge-warning':
+              1 === statusEnum.NotYetApplied}">{{item.status | discountCodeStatus}}</span></td>
           <td class="text-center">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customCheck2">
-              <label class="custom-control-label" for="customCheck2"></label>
-            </div>
+            {{item.numberUsageLimits ? (item.amountUsed | number) + '/' + (item.numberUsageLimits | number): item.amountUsed | number}}
           </td>
-          <td>Bootstrap Grid 4 Tutorial and Examples</td>
-          <td><span class="badge badge-success">Success</span></td>
-          <td>Cristina</td>
-          <td>3.417</td>
-          <td>2.846</td>
-        </tr>
-        <tr>
-          <td class="text-center">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="customCheck3">
-              <label class="custom-control-label" for="customCheck3"></label>
-            </div>
-          </td>
-          <td>Bootstrap Flexbox Tutorial and Examples</td>
-          <td><span class="badge badge-warning">Warning</span></td>
-          <td>Cristina</td>
-          <td>1.234</td>
-          <td>2.846</td>
+          <td>{{item.startTime | date:'dd/MM/yyyy'}}</td>
+          <td>{{item.endTime ? (item.endTime | date:'dd/MM/yyyy') : 'Chưa rõ'}}</td>
         </tr>
       </tbody>
     </table>
