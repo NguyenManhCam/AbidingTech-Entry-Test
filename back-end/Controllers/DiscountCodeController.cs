@@ -33,22 +33,25 @@ namespace back_end.Controllers
         public async Task<PagingData> Get([FromQuery]Paging paging)
         {
             var pagingData = new PagingData(paging);
-            pagingData.DiscountCodes = await _context.DiscountCodes.Skip((paging.PageNumber - 1) * paging.PageSize).Take(paging.PageSize).ToListAsync();
-            pagingData.TotalItems = await _context.DiscountCodes.CountAsync();
+            IQueryable<DiscountCode> query = _context.DiscountCodes;
+            if (paging.Code != null && paging.Code != String.Empty)
+            {
+                query = query.Where(x => x.Code == paging.Code);
+            }
+            if (paging.Status.HasValue)
+            {
+                query = query.Where(x => x.Status == paging.Status);
+            }
+            pagingData.DiscountCodes = await query.Skip((paging.PageNumber - 1) * paging.PageSize).Take(paging.PageSize).ToListAsync();
+            pagingData.TotalItems = await query.CountAsync();
             pagingData.TotalPages = Math.Ceiling(pagingData.TotalItems / (float)paging.PageSize);
             return pagingData;
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<DiscountCode>> FindOne(long id)
+        public async Task<DiscountCode> FindOne(long id)
         {
             var discountCode = await _context.DiscountCodes.FindAsync(id);
-
-            if (discountCode == null)
-            {
-                return NotFound();
-            }
-
             return discountCode;
         }
 
@@ -61,51 +64,66 @@ namespace back_end.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(long id, DiscountCode item)
+        public async Task<DiscountCode> Put(long id, DiscountCode item)
         {
+            if (id != item.Id)
+            {
+                return null;
+            }
             _context.Entry(item).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return item;
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> Patch(long id, ActionUpdate action)
+        public async Task<bool> Patch(long id, ActionUpdate action)
         {
-
-            switch (action)
+            var discountCode = await _context.DiscountCodes.FindAsync(id);
+            if (discountCode == null)
             {
-                case ActionUpdate.Continue:
-                    break;
-                case ActionUpdate.Stop:
-                    break;
-                default:
-                    break;
+                return false;
             }
-
-            return NoContent();
+            var isUpdated = discountCode.Update(action);
+            if (isUpdated)
+            {
+                await _context.SaveChangesAsync();
+            }
+            return isUpdated;
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(long id)
+        public async Task<bool> Delete(long id)
         {
-            var todoItem = await _context.DiscountCodes.FindAsync(id);
+            var discountCode = await _context.DiscountCodes.FindAsync(id);
 
-            if (todoItem == null)
+            if (discountCode == null)
             {
-                return NotFound();
+                return false;
             }
 
-            _context.DiscountCodes.Remove(todoItem);
+            _context.DiscountCodes.Remove(discountCode);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return true;
         }
 
-        [HttpGet("/api/[controller]/GetCategory")]
-        public async Task<object> GetCategory()
+        [HttpGet("/api/[controller]/GetProduct")]
+        public async Task<List<Category>> GetProduct()
         {
-            return await _context.Products.Select(x => new { Id = x.Id, Name = x.Name }).ToListAsync();
+            return await _context.Products.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
+        }
+
+        [HttpGet("/api/[controller]/GetProductGroup")]
+        public async Task<List<Category>> GetProductGroup()
+        {
+            return await _context.ProductGroups.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
+        }
+
+        [HttpGet("/api/[controller]/GetCustomerGroup")]
+        public async Task<List<Category>> GetCustomerGroup()
+        {
+            return await _context.CustomerGroups.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
         }
     }
 }

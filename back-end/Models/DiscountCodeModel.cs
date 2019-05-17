@@ -36,7 +36,7 @@ namespace back_end.Models
             EndTime = DateTime.Now;
             Status = Status.StopApplying;
         }
-        public void Update(ActionUpdate action)
+        public bool Update(ActionUpdate action)
         {
             switch (action)
             {
@@ -44,11 +44,16 @@ namespace back_end.Models
                     Continue();
                     break;
                 case ActionUpdate.Stop:
+                    if (Status != Status.Applied)
+                    {
+                        return false;
+                    }
                     Stop();
                     break;
                 default:
                     break;
             }
+            return true;
         }
     }
 
@@ -56,6 +61,8 @@ namespace back_end.Models
     {
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
+        public Status? Status { get; set; }
+        public string Code { get; set; }
     }
 
     public class PagingData
