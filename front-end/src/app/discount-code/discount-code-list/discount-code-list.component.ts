@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Status, DiscountCode, DiscountCodeService } from '../discount-code.service';
+import { DiscountCodeService } from '../discount-code.service';
+import { Status } from '../discount-code-enum';
+import { DiscountCode, Paging } from '../discount-code-interface';
 
 @Component({
   selector: 'app-discount-code-list',
@@ -13,18 +15,28 @@ export class DiscountCodeListComponent implements OnInit {
   selectedData = [];
   isAllChecked = false;
   isIndeterminate = false;
+  dataPage: Paging;
   constructor(
     public discountCodeService: DiscountCodeService
   ) { }
 
   ngOnInit() {
-    for (let index = 0; index < 10; index++) {
-      let data = new DiscountCode;
-      data.id = index;
-      data.promotionValue = index;
-      data.minValue = index;
-      this.data.push(data);
-    }
+    // for (let index = 0; index < 10; index++) {
+    //   let data = new DiscountCode;
+    //   data.id = index;
+    //   data.promotionValue = index;
+    //   data.minValue = index;
+    //   this.data.push(data);
+    // }
+    this.getData();
+  }
+
+  getData() {
+    this.discountCodeService.getDiscountCode()
+      .subscribe(x => {
+        this.dataPage = x;
+        this.data = x.discountCodes;
+      });
   }
 
   onCheckAll(checked: boolean): void {

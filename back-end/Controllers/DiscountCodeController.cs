@@ -26,6 +26,11 @@ namespace back_end.Controllers
                     _context.ProductGroups.Add(new ProductGroup { Name = $"Product Group {i + 1}" });
                     _context.CustomerGroups.Add(new CustomerGroup { Name = $"CustomerGroup {i + 1}" });
                 }
+                for (int i = 0; i < 50; i++)
+                {
+                    _context.DiscountCodes.Add(new DiscountCode { Code = $"Code {i + 1}" });
+                }
+                _context.SaveChanges();
             };
         }
 
@@ -108,19 +113,19 @@ namespace back_end.Controllers
             return true;
         }
 
-        [HttpGet("/api/[controller]/GetProduct")]
+        [HttpGet("GetProduct")]
         public async Task<List<Category>> GetProduct()
         {
             return await _context.Products.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
         }
 
-        [HttpGet("/api/[controller]/GetProductGroup")]
+        [HttpGet("GetProductGroup")]
         public async Task<List<Category>> GetProductGroup()
         {
             return await _context.ProductGroups.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
         }
 
-        [HttpGet("/api/[controller]/GetCustomerGroup")]
+        [HttpGet("GetCustomerGroup")]
         public async Task<List<Category>> GetCustomerGroup()
         {
             return await _context.CustomerGroups.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();

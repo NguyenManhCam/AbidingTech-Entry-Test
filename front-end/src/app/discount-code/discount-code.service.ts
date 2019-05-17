@@ -4,53 +4,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import * as voucherCodes from 'voucher-code-generator';
-
-
-export enum PromotionOption {
-  Percent,
-  Money
-}
-
-export enum ApplyWith {
-  AllOrder,
-  ProductGroup,
-  Product
-}
-
-export enum CustomerGroupEnum {
-  All,
-  CustomerGroup
-}
-
-export enum Status {
-  NotYetApplied,
-  Applied,
-  StopApplying
-}
+import { Status, Action, PromotionOption, ApplyWith, CustomerGroupEnum } from './discount-code-enum';
+import { DiscountCode, Paging, PagingParams } from './discount-code-interface';
 
 export class Category {
   id: number
   name: string
-}
-
-export class DiscountCode {
-  id?: number;
-  code: string;
-  promotionOption: PromotionOption = PromotionOption.Percent
-  promotionValue: number
-  minValue: number
-  applyWith: ApplyWith = ApplyWith.AllOrder
-  applyWithIds?: number[]
-  products: Category;
-  productGroups: Category;
-  customerGroup: CustomerGroupEnum = CustomerGroupEnum.All
-  customerGroupIds?: number[]
-  numberUsageLimits?: number
-  customerUsageLimits: boolean = true
-  status: Status = Status.NotYetApplied
-  amountUsed: number = 0
-  startTime: Date = new Date
-  endTime?: Date
 }
 
 @Injectable({
@@ -64,46 +23,52 @@ export class DiscountCodeService {
     { id: Status.NotYetApplied, name: 'Chưa áp dụng' },
     { id: Status.StopApplying, name: 'Ngừng áp dụng' }
   ];
-  private baseUrl = '';
+  private baseUrl = 'https://localhost:5001/api/DiscountCode';
   dateFormat = 'd/M/yy h:m a';
+  httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json'
+    }),
+  };
   constructor(
     private http: HttpClient,
     private decimalPipe: DecimalPipe,
     private datePipe: DatePipe
   ) { }
 
-  getDiscountCode(): Observable<DiscountCode[]> {
-    return this.http.get<DiscountCode[]>(this.baseUrl)
+  getDiscountCode(params: any = new PagingParams): Observable<Paging> {
+    const options = { headers: this.httpOptions.headers, params: params };
+    return this.http.get<Paging>(this.baseUrl, options)
       .pipe(
-        catchError(this.handleError<DiscountCode[]>('getHeroes', []))
+        catchError(this.handleError<Paging>('getHeroes'))
       );
   }
 
   postDiscountCode(data: DiscountCode): Observable<DiscountCode[]> {
-    return this.http.post<DiscountCode[]>(this.baseUrl, data, { headers: new HttpHeaders() })
+    return this.http.post<DiscountCode[]>(this.baseUrl, data, this.httpOptions)
       .pipe(
         catchError(this.handleError<DiscountCode[]>('postHeroes', []))
       );
   }
 
-  updateDiscountCode(data: DiscountCode): Observable<DiscountCode[]> {
-    return this.http.put<DiscountCode[]>(this.baseUrl, data, { headers: new HttpHeaders() })
+  updateDiscountCode(id: number, data: DiscountCode): Observable<DiscountCode[]> {
+    return this.http.put<DiscountCode[]>(`${this.baseUrl}/${id}`, data, this.httpOptions)
       .pipe(
         catchError(this.handleError<DiscountCode[]>('updateHeroes', []))
       );
   }
 
-  patchDiscountCode(data: DiscountCode): Observable<DiscountCode[]> {
-    return this.http.patch<DiscountCode[]>(this.baseUrl, data, { headers: new HttpHeaders() })
+  patchDiscountCode(id: number, action: Action): Observable<DiscountCode[]> {
+    return this.http.patch<DiscountCode[]>(`${this.baseUrl}/${id}`, { action: action }, this.httpOptions)
       .pipe(
         catchError(this.handleError<DiscountCode[]>('updateHeroes', []))
       );
   }
 
-  deleteDiscountCode(listId: number): Observable<DiscountCode[]> {
-    return this.http.delete<DiscountCode[]>(this.baseUrl)
+  deleteDiscountCode(id: number): Observable<boolean> {
+    return this.http.delete<boolean>(`${this.baseUrl}/${id}`)
       .pipe(
-        catchError(this.handleError<DiscountCode[]>('deleteHeroes', []))
+        catchError(this.handleError<boolean>('deleteHeroes'))
       );
   }
 
@@ -123,7 +88,7 @@ export class DiscountCodeService {
         applyWith = 'Toàn bộ đơn hàng';
         break;
       case ApplyWith.Product:
-        applyWith = `${data.applyWithIds.length} sản phẩm`;
+        applyWith = `${data.discountCodeProductGroups.length} sản phẩm`;
         break;
       case ApplyWith.ProductGroup:
         applyWith = `danh mục ${name.applyWithName}`;

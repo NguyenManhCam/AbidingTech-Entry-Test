@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { DiscountCodeService, ApplyWith, CustomerGroupEnum, DiscountCode } from '../discount-code.service';
-import { PromotionOption } from '../discount-code.service';
+import { DiscountCodeService } from '../discount-code.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { PromotionOption, ApplyWith, CustomerGroupEnum } from '../discount-code-enum';
+import { DiscountCode } from '../discount-code-interface';
 
 @Component({
   selector: 'app-discount-code-data',

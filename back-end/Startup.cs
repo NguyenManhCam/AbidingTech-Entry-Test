@@ -28,6 +28,17 @@ namespace back_end
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CORS",
+                builder =>
+                {
+                    builder
+                    .WithOrigins("http://localhost:4200")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod(); ;
+                });
+            });
             services.AddDbContext<DiscountCodeContext>(opt =>
                opt.UseInMemoryDatabase("DiscountCodeList"));
             services.AddMvc()
@@ -65,6 +76,7 @@ namespace back_end
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
                 c.RoutePrefix = string.Empty;
             });
+            app.UseCors("CORS");
 
             app.UseMvc();
         }
