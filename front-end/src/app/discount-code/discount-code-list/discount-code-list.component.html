@@ -26,9 +26,9 @@
                 aria-haspopup="true" aria-expanded="false">
               </button>
               <div class="dropdown-menu">
-                <a class="dropdown-item" href="#">Tiếp tục khuyến mãi</a>
-                <a class="dropdown-item" href="#">Ngừng khuyến mãi</a>
-                <a class="dropdown-item" href="#">Xóa khuyến mãi</a>
+                <a class="dropdown-item" href="javascript:;">Tiếp tục khuyến mãi</a>
+                <a class="dropdown-item" href="javascript:;">Ngừng khuyến mãi</a>
+                <a class="dropdown-item" href="javascript:;">Xóa khuyến mãi</a>
               </div>
             </div>
           </th>
@@ -69,6 +69,6 @@
         </tr>
       </tbody>
     </table>
-    <app-pagination [paging]="dataPage"></app-pagination>
+    <app-pagination [paging]="dataPage" (onChange)="getData($event)"></app-pagination>
   </div>
 </div>

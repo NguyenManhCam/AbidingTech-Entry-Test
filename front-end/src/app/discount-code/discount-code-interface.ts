@@ -56,7 +56,7 @@ export interface Paging {
     totalItems: number;
     pageNumber: number;
     pageSize: number;
-    totalPages: string;
+    totalPages: number;
     discountCodes: DiscountCode[];
 }
 

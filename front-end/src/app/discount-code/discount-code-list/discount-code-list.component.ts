@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DiscountCodeService } from '../discount-code.service';
 import { Status } from '../discount-code-enum';
-import { DiscountCode, Paging } from '../discount-code-interface';
+import { DiscountCode, Paging, PagingParams } from '../discount-code-interface';
 
 @Component({
   selector: 'app-discount-code-list',
@@ -16,6 +16,7 @@ export class DiscountCodeListComponent implements OnInit {
   isAllChecked = false;
   isIndeterminate = false;
   dataPage: Paging;
+  pageParams = new PagingParams;
   constructor(
     public discountCodeService: DiscountCodeService
   ) { }
@@ -31,8 +32,9 @@ export class DiscountCodeListComponent implements OnInit {
     this.getData();
   }
 
-  getData() {
-    this.discountCodeService.getDiscountCode()
+  getData(page: number = 1) {
+    this.pageParams.pageNumber = page;
+    this.discountCodeService.getDiscountCode(this.pageParams)
       .subscribe(x => {
         this.dataPage = x;
         this.data = x.discountCodes;
