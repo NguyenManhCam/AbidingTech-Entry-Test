@@ -1,4 +1,4 @@
-import { ApplyWith, PromotionOption, CustomerGroupEnum } from "./discount-code-enum";
+import { ApplyWith, PromotionOption, CustomerGroupEnum, Status } from "./discount-code-enum";
 
 export class DiscountCode {
     id?: number;
@@ -10,7 +10,7 @@ export class DiscountCode {
     customerGroup: number;
     numberUsageLimits?: number;
     customerUsageLimits: boolean = true;
-    status: CustomerGroupEnum = CustomerGroupEnum.All;
+    status: Status = Status.NotYetApplied;
     amountUsed: number = 0;
     startTime: Date = new Date;
     endTime?: Date;

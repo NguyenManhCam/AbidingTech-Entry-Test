@@ -41,6 +41,9 @@ namespace back_end
             });
             services.AddDbContext<DiscountCodeContext>(opt =>
                opt.UseInMemoryDatabase("DiscountCodeList"));
+            // var connection = "Server=localhost;Database=abiding;User Id=sa;Password=Cam@123456;ConnectRetryCount=0";
+            // services.AddDbContext<DiscountCodeContext>
+            //     (options => options.UseSqlServer(connection));
             services.AddMvc()
             .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
             .AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);

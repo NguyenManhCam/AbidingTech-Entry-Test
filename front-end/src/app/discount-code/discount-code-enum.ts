@@ -24,3 +24,9 @@ export enum Action {
     Continue,
     Stop
 }
+
+export enum CategoryType {
+    Product,
+    ProductGroup,
+    CustomerGroup
+}

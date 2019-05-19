@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DiscountCodeService } from '../discount-code.service';
-import { Status } from '../discount-code-enum';
+import { Status, Action } from '../discount-code-enum';
 import { DiscountCode, Paging, PagingParams } from '../discount-code-interface';
 
 @Component({
@@ -12,7 +12,7 @@ export class DiscountCodeListComponent implements OnInit {
 
   statusEnum = Status;
   data: DiscountCode[] = [];
-  selectedData = [];
+  selectedData: number[] = [];
   isAllChecked = false;
   isIndeterminate = false;
   dataPage: Paging;
@@ -32,13 +32,10 @@ export class DiscountCodeListComponent implements OnInit {
     this.getData();
   }
 
-  getData(page: number = 1) {
+  async getData(page: number = 1) {
     this.pageParams.pageNumber = page;
-    this.discountCodeService.getDiscountCode(this.pageParams)
-      .subscribe(x => {
-        this.dataPage = x;
-        this.data = x.discountCodes;
-      });
+    this.dataPage = await this.discountCodeService.getDiscountCode(this.pageParams);
+    this.data = this.dataPage.discountCodes;
   }
 
   onCheckAll(checked: boolean): void {
@@ -68,9 +65,23 @@ export class DiscountCodeListComponent implements OnInit {
     return index !== -1;
   }
 
-  refreshStatus(): void {
-    this.isAllChecked = this.data.every(item => true);
-    this.isIndeterminate =
-      this.data.some(item => true) && !this.isAllChecked;
+  async updateStatus(action: Action) {
+    const tasks = this.selectedData.map(id => {
+      return this.discountCodeService.patchDiscountCode(id, action);
+    });
+    const rs = await Promise.all(tasks);
+    if (rs.every(isOk => isOk)) {
+      console.log('OK');
+    }
+  }
+
+  async delete() {
+    const tasks = this.selectedData.map(id => {
+      return this.discountCodeService.deleteDiscountCode(id);
+    });
+    const rs = await Promise.all(tasks);
+    if (rs.every(isOk => isOk)) {
+      console.log('OK');
+    }
   }
 }

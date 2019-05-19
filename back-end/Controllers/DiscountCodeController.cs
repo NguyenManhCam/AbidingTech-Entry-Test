@@ -18,6 +18,7 @@ namespace back_end.Controllers
         public DiscountCodeController(DiscountCodeContext context)
         {
             _context = context;
+
             if (!_context.Products.Any())
             {
                 for (int i = 0; i < 10; i++)
@@ -38,7 +39,13 @@ namespace back_end.Controllers
         public async Task<PagingData> Get([FromQuery]Paging paging)
         {
             var pagingData = new PagingData(paging);
-            IQueryable<DiscountCode> query = _context.DiscountCodes;
+            IQueryable<DiscountCode> query = _context.DiscountCodes
+            .Include(x => x.DiscountCodeProducts)
+            .ThenInclude(x => x.Product)
+            .Include(x => x.DiscountCodeProductGroups)
+            .ThenInclude(x => x.ProductGroup)
+            .Include(x => x.DiscountCodeCustomerGroups)
+            .ThenInclude(x => x.CustomerGroup);
             if (paging.Code != null && paging.Code != String.Empty)
             {
                 query = query.Where(x => x.Code == paging.Code);
@@ -54,31 +61,68 @@ namespace back_end.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<DiscountCode> FindOne(long id)
+        public async Task<DiscountCode> Get(long id)
         {
-            var discountCode = await _context.DiscountCodes.FindAsync(id);
+            var discountCode = await _context.DiscountCodes
+            .Include(x => x.DiscountCodeProducts)
+            .ThenInclude(x => x.Product)
+            .Include(x => x.DiscountCodeProductGroups)
+            .ThenInclude(x => x.ProductGroup)
+            .Include(x => x.DiscountCodeCustomerGroups)
+            .ThenInclude(x => x.CustomerGroup)
+            .FirstOrDefaultAsync(x => x.Id == id);
             return discountCode;
         }
 
         [HttpPost]
-        public async Task<DiscountCode> Post(DiscountCode item)
+        public async Task<DiscountCode> Post(DiscountCode discountCode)
         {
-            _context.DiscountCodes.Add(item);
+            foreach (var item in discountCode.DiscountCodeProducts)
+            {
+                var product = await _context.Products.FindAsync(item.Id);
+                item.Product = product;
+            }
+            foreach (var item in discountCode.DiscountCodeProductGroups)
+            {
+                var productGroup = await _context.ProductGroups.FindAsync(item.Id);
+                item.ProductGroup = productGroup;
+            }
+            foreach (var item in discountCode.DiscountCodeCustomerGroups)
+            {
+                var customerGroup = await _context.CustomerGroups.FindAsync(item.Id);
+                item.CustomerGroup = customerGroup;
+            }
+            await _context.DiscountCodes.AddAsync(discountCode);
             await _context.SaveChangesAsync();
-            return item;
+            return discountCode;
         }
 
         [HttpPut("{id}")]
-        public async Task<DiscountCode> Put(long id, DiscountCode item)
+        public async Task<DiscountCode> Put(long id, DiscountCode discountCode)
         {
-            if (id != item.Id)
+            if (id != discountCode.Id)
             {
                 return null;
             }
-            _context.Entry(item).State = EntityState.Modified;
+            foreach (var item in discountCode.DiscountCodeProducts)
+            {
+                var product = await _context.Products.FindAsync(item.Id);
+                item.Product = product;
+            }
+            foreach (var item in discountCode.DiscountCodeProductGroups)
+            {
+                var productGroup = await _context.ProductGroups.FindAsync(item.Id);
+                item.ProductGroup = productGroup;
+            }
+            foreach (var item in discountCode.DiscountCodeCustomerGroups)
+            {
+                var customerGroup = await _context.CustomerGroups.FindAsync(item.Id);
+                item.CustomerGroup = customerGroup;
+            }
+            _context.Entry(discountCode).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return item;
+            return discountCode;
         }
 
         [HttpPatch("{id}")]
@@ -113,22 +157,25 @@ namespace back_end.Controllers
             return true;
         }
 
-        [HttpGet("GetProduct")]
-        public async Task<List<Category>> GetProduct()
+        [HttpGet("GetCategory")]
+        public async Task<List<Category>> GetCategory(CategoryType categoryType)
         {
-            return await _context.Products.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
-        }
-
-        [HttpGet("GetProductGroup")]
-        public async Task<List<Category>> GetProductGroup()
-        {
-            return await _context.ProductGroups.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
-        }
-
-        [HttpGet("GetCustomerGroup")]
-        public async Task<List<Category>> GetCustomerGroup()
-        {
-            return await _context.CustomerGroups.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
+            var listCategory = new List<Category>();
+            switch (categoryType)
+            {
+                case CategoryType.Product:
+                    listCategory = await _context.Products.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
+                    break;
+                case CategoryType.ProductGroup:
+                    listCategory = await _context.ProductGroups.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
+                    break;
+                case CategoryType.CustomerGroup:
+                    listCategory = await _context.CustomerGroups.Select(x => new Category { Id = x.Id, Name = x.Name }).ToListAsync();
+                    break;
+                default:
+                    break;
+            }
+            return listCategory;
         }
     }
 }

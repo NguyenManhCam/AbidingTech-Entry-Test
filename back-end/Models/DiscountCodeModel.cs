@@ -20,9 +20,9 @@ namespace back_end.Models
         public int AmountUsed { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
-        public virtual ICollection<DiscountCodeProduct> DiscountCodeProducts { get; set; }
-        public virtual ICollection<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; }
-        public virtual ICollection<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; }
+        public virtual List<DiscountCodeProduct> DiscountCodeProducts { get; set; } = new List<DiscountCodeProduct>();
+        public virtual List<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; } = new List<DiscountCodeProductGroup>();
+        public virtual List<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; } = new List<DiscountCodeCustomerGroup>();
 
         private void Continue()
         {
@@ -71,7 +71,7 @@ namespace back_end.Models
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         public double TotalPages { get; set; }
-        public ICollection<DiscountCode> DiscountCodes { get; set; }
+        public List<DiscountCode> DiscountCodes { get; set; }
         public PagingData(Paging paging)
         {
             PageNumber = paging.PageNumber;
@@ -94,15 +94,15 @@ namespace back_end.Models
 
     public class Product : Category
     {
-        public virtual ICollection<DiscountCodeProduct> DiscountCodeProducts { get; set; }
+        public virtual List<DiscountCodeProduct> DiscountCodeProducts { get; set; }
     }
     public class ProductGroup : Category
     {
-        public virtual ICollection<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; }
+        public virtual List<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; }
     }
     public class CustomerGroup : Category
     {
-        public virtual ICollection<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; }
+        public virtual List<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; }
     }
 
     public class DiscountCodeProduct : DiscountCodeJunction
@@ -197,5 +197,12 @@ namespace back_end.Models
     {
         Continue,
         Stop
+    }
+
+    public enum CategoryType
+    {
+        Product,
+        ProductGroup,
+        CustomerGroup
     }
 }

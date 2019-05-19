@@ -13,6 +13,7 @@ import { DecimalPipe, DatePipe } from '@angular/common';
 import { registerLocaleData } from '@angular/common';
 import vi from '@angular/common/locales/vi';
 import { FormsModule } from '@angular/forms';
+import { ModalModule } from 'ngx-bootstrap/modal';
 registerLocaleData(vi);
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ registerLocaleData(vi);
     FormsModule,
     BrowserAnimationsModule,
     NoopAnimationsModule,
-    NgZorroAntdModule
+    NgZorroAntdModule,
+    ModalModule.forRoot()
   ],
   providers: [
     DecimalPipe,

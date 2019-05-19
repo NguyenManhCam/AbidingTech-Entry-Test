@@ -49,15 +49,17 @@
             </div>
           </td>
           <td>
-            <span *ngFor="let desc of discountCodeService.getDesc(item, null, false); let i=index">
-              <ng-container *ngIf="i === 0; else elseTemplate">
-                {{desc}}&nbsp;
-              </ng-container>
-              <ng-template #elseTemplate>
-                &bull; &nbsp;{{desc}}&nbsp;
-              </ng-template>
-
-            </span>
+            <div><a>{{item.code}}</a></div>
+            <div>
+              <span *ngFor="let desc of discountCodeService.getDesc(item, null, false); let i=index">
+                <ng-container *ngIf="i === 0; else elseTemplate">
+                  {{desc}}&nbsp;
+                </ng-container>
+                <ng-template #elseTemplate>
+                  &bull; &nbsp;{{desc}}&nbsp;
+                </ng-template>
+              </span>
+            </div>
           </td>
           <td><span class="badge" [ngClass]="{'badge-secondary': 0 === statusEnum.NotYetApplied,'badge-success': 1 === statusEnum.NotYetApplied,'badge-warning':
               1 === statusEnum.NotYetApplied}">{{item.status | discountCodeStatus}}</span></td>

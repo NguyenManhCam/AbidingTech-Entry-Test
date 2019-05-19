@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { catchError, map, tap } from 'rxjs/operators';
 import { DecimalPipe, DatePipe } from '@angular/common';
 import * as voucherCodes from 'voucher-code-generator';
-import { Status, Action, PromotionOption, ApplyWith, CustomerGroupEnum } from './discount-code-enum';
+import { Status, Action, PromotionOption, ApplyWith, CustomerGroupEnum, CategoryType } from './discount-code-enum';
 import { DiscountCode, Paging, PagingParams } from './discount-code-interface';
 
 export class Category {
@@ -36,48 +36,33 @@ export class DiscountCodeService {
     private datePipe: DatePipe
   ) { }
 
-  getDiscountCode(params: any = new PagingParams): Observable<Paging> {
+  getDiscountCode(params: any = new PagingParams): Promise<Paging> {
     const options = { headers: this.httpOptions.headers, params: params };
-    return this.http.get<Paging>(this.baseUrl, options)
-      .pipe(
-        catchError(this.handleError<Paging>('getHeroes'))
-      );
+    return this.http.get<Paging>(this.baseUrl, options).toPromise();
   }
 
-  postDiscountCode(data: DiscountCode): Observable<DiscountCode[]> {
-    return this.http.post<DiscountCode[]>(this.baseUrl, data, this.httpOptions)
-      .pipe(
-        catchError(this.handleError<DiscountCode[]>('postHeroes', []))
-      );
+  postDiscountCode(data: DiscountCode): Promise<DiscountCode[]> {
+    return this.http.post<DiscountCode[]>(this.baseUrl, data, this.httpOptions).toPromise();
   }
 
-  updateDiscountCode(id: number, data: DiscountCode): Observable<DiscountCode[]> {
-    return this.http.put<DiscountCode[]>(`${this.baseUrl}/${id}`, data, this.httpOptions)
-      .pipe(
-        catchError(this.handleError<DiscountCode[]>('updateHeroes', []))
-      );
+  updateDiscountCode(id: number, data: DiscountCode): Promise<DiscountCode[]> {
+    return this.http.put<DiscountCode[]>(`${this.baseUrl}/${id}`, data, this.httpOptions).toPromise();
   }
 
-  patchDiscountCode(id: number, action: Action): Observable<DiscountCode[]> {
-    return this.http.patch<DiscountCode[]>(`${this.baseUrl}/${id}`, { action: action }, this.httpOptions)
-      .pipe(
-        catchError(this.handleError<DiscountCode[]>('updateHeroes', []))
-      );
+  patchDiscountCode(id: number, action: Action): Promise<boolean> {
+    return this.http.patch<boolean>(`${this.baseUrl}/${id}`, { action: action }, this.httpOptions).toPromise();
   }
 
-  deleteDiscountCode(id: number): Observable<boolean> {
-    return this.http.delete<boolean>(`${this.baseUrl}/${id}`)
-      .pipe(
-        catchError(this.handleError<boolean>('deleteHeroes'))
-      );
+  deleteDiscountCode(id: number): Promise<boolean> {
+    return this.http.delete<boolean>(`${this.baseUrl}/${id}`).toPromise();
   }
 
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
-      console.error(error);
-      return of(result as T);
-    };
+  getCategory(categoryType: CategoryType): Promise<Paging> {
+    const params: any = { categoryType: categoryType };
+    const options = { headers: this.httpOptions.headers, params: params };
+    return this.http.get<Paging>(this.baseUrl, options).toPromise();
   }
+
 
   getDesc(data: DiscountCode, name: { applyWithName?: string, customerGroupName?: string }, isDetail = true): string[] {
     let result = [];

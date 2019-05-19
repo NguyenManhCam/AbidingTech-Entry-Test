@@ -1,14 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewEncapsulation } from '@angular/core';
 import { DiscountCodeService } from '../discount-code.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { PromotionOption, ApplyWith, CustomerGroupEnum } from '../discount-code-enum';
+import { PromotionOption, ApplyWith, CustomerGroupEnum, Action, Status } from '../discount-code-enum';
 import { DiscountCode } from '../discount-code-interface';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-discount-code-data',
   templateUrl: './discount-code-data.component.html',
-  styleUrls: ['./discount-code-data.component.scss']
+  styleUrls: ['./discount-code-data.component.scss'],
+  encapsulation: ViewEncapsulation.None
+
 })
 export class DiscountCodeDataComponent implements OnInit {
 
@@ -36,14 +39,25 @@ export class DiscountCodeDataComponent implements OnInit {
     applyWithName: 'Test',
     customerGroupName: 'Test'
   }
+  btnCopy = 'Copy link';
+  modalRef: BsModalRef;
   constructor(
     public discountCodeService: DiscountCodeService,
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private modalService: BsModalService
   ) { }
 
   ngOnInit() {
     this.createForm();
+  }
+
+  openModal(template: TemplateRef<any>) {
+    this.modalRef = this.modalService.show(template);
+  }
+
+  closeModal(template: TemplateRef<any>) {
+    this.modalRef.hide();
   }
 
   createForm() {
@@ -106,6 +120,19 @@ export class DiscountCodeDataComponent implements OnInit {
 
   cancel() {
     this.router.navigate(['/discount-code']);
+  }
+
+  async stop(template: TemplateRef<any>) {
+    this.closeModal(template);
+    const isOk = await this.discountCodeService.patchDiscountCode(1, Action.Stop);
+    if (isOk) {
+
+    }
+  }
+
+  copy(element: any) {
+    element.select();
+    document.execCommand("copy");
   }
 
 }
