@@ -35,7 +35,8 @@
               "src/styles.scss",
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "node_modules/ngx-bootstrap/datepicker/bs-datepicker.css",
-              "node_modules/ng-zorro-antd/ng-zorro-antd.min.css"
+              "node_modules/ng-zorro-antd/ng-zorro-antd.min.css",
+              "node_modules/open-iconic/font/css/open-iconic-bootstrap.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",

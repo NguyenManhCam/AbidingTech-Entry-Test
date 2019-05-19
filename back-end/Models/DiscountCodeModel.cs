@@ -9,26 +9,71 @@ namespace back_end.Models
     {
         public long Id { get; set; }
         public string Code { get; set; }
-        public PromotionOption PromotionOption { get; set; }
+        public PromotionOption PromotionOption { get; set; } = PromotionOption.Percent;
         public decimal PromotionValue { get; set; }
-        public decimal MinValue { get; set; }
-        public ApplyWith ApplyWith { get; set; }
-        public CustomerGroupEnum CustomerGroup { get; set; }
-        public int NumberUsageLimits { get; set; }
-        public bool CustomerUsageLimits { get; set; }
-        public Status Status { get; set; }
-        public int AmountUsed { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public virtual List<DiscountCodeProduct> DiscountCodeProducts { get; set; } = new List<DiscountCodeProduct>();
-        public virtual List<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; } = new List<DiscountCodeProductGroup>();
-        public virtual List<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; } = new List<DiscountCodeCustomerGroup>();
+        public decimal? MinValue { get; set; }
+        public ApplyWith ApplyWith { get; set; } = ApplyWith.AllOrder;
+        public CustomerGroupEnum CustomerGroup { get; set; } = CustomerGroupEnum.All;
+        public int? NumberUsageLimits { get; set; }
+        public bool CustomerUsageLimits { get; set; } = true;
+        public Status Status { get; set; } = Status.NotYetApplied;
+        public int AmountUsed { get; set; } = 0;
+        public DateTime StartTime { get; set; } = DateTime.Now;
+        public DateTime? EndTime { get; set; }
+        private List<DiscountCodeProduct> discountCodeProducts;
+        private List<DiscountCodeProductGroup> discountCodeProductGroups;
+        private List<DiscountCodeCustomerGroup> discountCodeCustomerGroups;
+        public List<DiscountCodeProduct> DiscountCodeProducts
+        {
+            get
+            {
+                return this.discountCodeProducts;
+            }
+            set
+            {
+                this.discountCodeProducts = ApplyWith == ApplyWith.Product ? value : new List<DiscountCodeProduct>();
+            }
+        }
+        public List<DiscountCodeProductGroup> DiscountCodeProductGroups
+        {
+            get
+            {
+                return this.discountCodeProductGroups;
+            }
+            set
+            {
+                this.discountCodeProductGroups = ApplyWith == ApplyWith.ProductGroup ? value : new List<DiscountCodeProductGroup>();
+            }
+        }
+        public List<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups
+        {
+            get
+            {
+                return this.discountCodeCustomerGroups;
+            }
+            set
+            {
+                this.discountCodeCustomerGroups = CustomerGroup == CustomerGroupEnum.CustomerGroup ? value : new List<DiscountCodeCustomerGroup>();
+            }
+        }
+
+        public DiscountCode()
+        {
+            this.discountCodeProducts = new List<DiscountCodeProduct>();
+            this.discountCodeProductGroups = new List<DiscountCodeProductGroup>();
+            this.discountCodeCustomerGroups = new List<DiscountCodeCustomerGroup>();
+        }
 
         private void Continue()
         {
             var timeSpan = EndTime - StartTime;
             StartTime = DateTime.Now;
-            EndTime.Add(timeSpan - (EndTime - StartTime));
+            if (EndTime != null)
+            {
+                var newEndTime = (DateTime)EndTime;
+                newEndTime.Add((TimeSpan)timeSpan - (newEndTime - StartTime));
+                EndTime = newEndTime;
+            }
             Status = Status.Applied;
         }
         private void Stop()
@@ -89,20 +134,20 @@ namespace back_end.Models
     {
         public long DiscountCodeId { get; set; }
         public long Id { get; set; }
-        public virtual DiscountCode DiscountCode { get; set; }
+        public DiscountCode DiscountCode { get; set; }
     }
 
     public class Product : Category
     {
-        public virtual List<DiscountCodeProduct> DiscountCodeProducts { get; set; }
+        public List<DiscountCodeProduct> DiscountCodeProducts { get; set; }
     }
     public class ProductGroup : Category
     {
-        public virtual List<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; }
+        public List<DiscountCodeProductGroup> DiscountCodeProductGroups { get; set; }
     }
     public class CustomerGroup : Category
     {
-        public virtual List<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; }
+        public List<DiscountCodeCustomerGroup> DiscountCodeCustomerGroups { get; set; }
     }
 
     public class DiscountCodeProduct : DiscountCodeJunction
@@ -176,8 +221,9 @@ namespace back_end.Models
     public enum ApplyWith
     {
         AllOrder,
-        ProductGroup,
-        Product
+        Product,
+        ProductGroup
+
     }
 
     public enum CustomerGroupEnum

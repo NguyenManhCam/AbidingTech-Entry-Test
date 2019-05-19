@@ -5,8 +5,8 @@ export enum PromotionOption {
 
 export enum ApplyWith {
     AllOrder,
-    ProductGroup,
-    Product
+    Product,
+    ProductGroup
 }
 
 export enum CustomerGroupEnum {

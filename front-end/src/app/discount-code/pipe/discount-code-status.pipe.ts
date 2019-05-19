@@ -1,6 +1,6 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { DiscountCodeService } from './discount-code.service'
-import { Status } from './discount-code-enum';
+import { DiscountCodeService } from '../discount-code.service'
+import { Status } from '../discount-code-enum';
 
 @Pipe({
   name: 'discountCodeStatus'

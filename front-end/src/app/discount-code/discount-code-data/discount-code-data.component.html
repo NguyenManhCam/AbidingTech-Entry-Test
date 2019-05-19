@@ -1,19 +1,35 @@
  <div class="row">
    <div class="col-md-4 order-md-2 mb-4">
      <h4 class="d-flex justify-content-between align-items-center mb-3">
-       <span class="text-muted">Tổng quan chương trình khuyến mại</span>
+       <span>Tổng quan chương trình khuyến mại</span>
      </h4>
+     <h5 class="d-flex justify-content-between align-items-center mb-3">
+       <span>{{discountCode.code}}</span>
+       <span *ngIf="discountCode.id" class="badge float-right" [ngClass]="{'badge-secondary': 0 === statusEnum.NotYetApplied,'badge-success': 1 === statusEnum.NotYetApplied,'badge-warning':
+              1 === statusEnum.NotYetApplied}">{{discountCode.status | discountCodeStatus}}</span>
+     </h5>
      <ul class="list-group">
-       <li *ngFor="let desc of discountCodeService.getDesc(myForm.value, nameData)" class="list-group-item">
-         <span>{{desc}}</span>
-         <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal(templateCopy)">
-           <span aria-hidden="true">&times;</span>
-         </button>
+       <li *ngFor="let desc of descs" class="list-group-item">
+         {{desc}}
        </li>
      </ul>
    </div>
    <div class="col-md-8 order-md-1">
-     <h4 class="mb-3">Thêm mới khuyến mãi</h4>
+     <ng-container *ngIf="!discountCode.id">
+       <h4 class="mb-3">Thêm mới khuyến mãi</h4>
+     </ng-container>
+     <ng-container *ngIf="discountCode.id">
+       <h4 class="mb-3">Mã khuyến mãi: {{discountCode.code}}</h4>
+       <span (click)="openModal(templateStop)" class="oi oi-ban mr-3">&nbsp;Ngừng khuyến mãi</span>
+       <span (click)="openModal(templateShare)" class="oi oi-share-boxed">&nbsp;Chia sẻ</span>
+       <div class="alert alert-success mt-3" role="alert">
+         <h4 class="alert-heading">{{discountCode.code}} đã được tạo.</h4>
+         <p>Hãy chia sẻ link mã khuyến mãi qua email hay mạng xã hội. Khuyến mãi của bạn sẽ được sử dụng ở trang thanh
+           toán</p>
+         <hr>
+         <button (click)="openModal(templateShare)" type="button" class="btn btn-light">Chia sẻ link</button>
+       </div>
+     </ng-container>
      <form *ngIf="myForm" class="needs-validation" [formGroup]="myForm" (submit)="onSubmit()" novalidate>
        <ul class="nav nav-tabs" id="myTab" role="tablist">
          <li class="nav-item">
@@ -97,11 +113,43 @@
                [value]="item.id">
              <label class="custom-control-label" [for]="'applyWith' + item.id">{{item.name}}</label>
            </div>
-           <div *ngIf="myForm.get('applyWith').value !== applyWithEnum.AllOrder" class="input-group">
+           <!-- <div *ngIf="myForm.get('applyWith').value !== applyWithEnum.AllOrder" class="input-group">
              <input #searchProduct type="text" class="form-control">
              <div class="input-group-append">
                <button (click)="search(searchProduct)" type="button" class="btn btn-outline-secondary">Tìm kiếm</button>
              </div>
+           </div> -->
+           <div *ngIf="myForm.get('applyWith').value === applyWithEnum.Product">
+             <select (change)="onChangeCategory(categoryTypeEnum.Product, $event.target.value)"
+               class="form-control custom-select">
+               <option *ngFor="let item of listProducts" value="{{item.id}}">{{item.name}}
+               </option>
+             </select>
+             <ul class="list-group pt-2">
+               <li *ngFor="let item of productsSelected" class="list-group-item">
+                 <span>{{item.name}}</span>
+                 <button type="button" class="close pull-right"
+                   (click)="onChangeCategory(categoryTypeEnum.Product, item.id, false)">
+                   <span aria-hidden="true">&times;</span>
+                 </button>
+               </li>
+             </ul>
+           </div>
+           <div *ngIf="myForm.get('applyWith').value === applyWithEnum.ProductGroup">
+             <select (change)="onChangeCategory(categoryTypeEnum.ProductGroup, $event.target.value)"
+               class="form-control custom-select">
+               <option *ngFor="let item of listProductGroups" value="{{item.id}}">{{item.name}}
+               </option>
+             </select>
+             <ul class="list-group pt-2">
+               <li *ngFor="let item of productGroupsSelected" class="list-group-item">
+                 <span>{{item.name}}</span>
+                 <button type="button" class="close pull-right"
+                   (click)="onChangeCategory(categoryTypeEnum.ProductGroup, item.id, false)">
+                   <span aria-hidden="true">&times;</span>
+                 </button>
+               </li>
+             </ul>
            </div>
          </div>
          <div class="tab-pane fade pt-3" id="customer-group" role="tabpanel" aria-labelledby="customer-group-tab">
@@ -110,12 +158,21 @@
                [id]="'customerGroup' + item.id" [value]="item.id">
              <label class="custom-control-label" [for]="'customerGroup' + item.id">{{item.name}}</label>
            </div>
-           <div *ngIf="myForm.get('customerGroup').value !== customerGroupEnum.All" class="input-group">
-             <input #searchCustomerGroup type="text" class="form-control">
-             <div class="input-group-append">
-               <button (click)="search(searchCustomerGroup)" type="button" class="btn btn-outline-secondary">Tìm
-                 kiếm</button>
-             </div>
+           <div *ngIf="myForm.get('customerGroup').value === customerGroupEnum.CustomerGroup">
+             <select (change)="onChangeCategory(categoryTypeEnum.CustomerGroup, $event.target.value)"
+               class="form-control custom-select">
+               <option *ngFor="let item of listCustomerGroups" value="{{item.id}}">{{item.name}}
+               </option>
+             </select>
+             <ul class="list-group pt-2">
+               <li *ngFor="let item of customerGroupsSelected" class="list-group-item">
+                 <span>{{item.name}}</span>
+                 <button type="button" class="close pull-right"
+                   (click)="onChangeCategory(categoryTypeEnum.CustomerGroup, item.id, false)">
+                   <span aria-hidden="true">&times;</span>
+                 </button>
+               </li>
+             </ul>
            </div>
          </div>
          <div class="tab-pane fade pt-3" id="limit" role="tabpanel" aria-labelledby="limit-tab">
@@ -171,10 +228,10 @@
  </div>
 
 
- <ng-template #templateConfirm>
+ <ng-template #templateStop>
    <div class="modal-header">
      <h4 class="modal-title pull-left">Ngừng khuyến mãi</h4>
-     <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal(templateConfirm)">
+     <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal(templateStop)">
        <span aria-hidden="true">&times;</span>
      </button>
    </div>
@@ -182,15 +239,15 @@
      Bạn có chắc chắn muốn ngừng khuyến mãi? Khuyến mãi sẽ được cho hết hạn ngay.
    </div>
    <div class="modal-footer">
-     <button (click)="closeModal(templateConfirm)" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
-     <button (click)="stop(templateConfirm)" type="button" class="btn btn-info">Ngừng</button>
+     <button (click)="closeModal(templateStop)" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
+     <button (click)="stop(templateStop)" type="button" class="btn btn-info">Ngừng</button>
    </div>
  </ng-template>
 
- <ng-template #templateCopy>
+ <ng-template #templateShare>
    <div class="modal-header">
      <h4 class="modal-title pull-left">Linh chia sẻ khuyến mãi</h4>
-     <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal(templateCopy)">
+     <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal(templateShare)">
        <span aria-hidden="true">&times;</span>
      </button>
    </div>
@@ -210,6 +267,6 @@
      </div>
    </div>
    <div class="modal-footer">
-     <button (click)="closeModal(templateCopy)" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
+     <button (click)="closeModal(templateShare)" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
    </div>
  </ng-template>

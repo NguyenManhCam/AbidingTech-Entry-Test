@@ -25,7 +25,7 @@ namespace back_end.Controllers
                 {
                     _context.Products.Add(new Product { Name = $"Product {i + 1}" });
                     _context.ProductGroups.Add(new ProductGroup { Name = $"Product Group {i + 1}" });
-                    _context.CustomerGroups.Add(new CustomerGroup { Name = $"CustomerGroup {i + 1}" });
+                    _context.CustomerGroups.Add(new CustomerGroup { Name = $"Customer Group {i + 1}" });
                 }
                 for (int i = 0; i < 50; i++)
                 {

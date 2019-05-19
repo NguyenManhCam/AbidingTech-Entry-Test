@@ -4,6 +4,7 @@ import { DiscountCodeDataComponent } from './discount-code-data.component';
 import { DiscountCodeDataRoutes } from './discount-code-data.routing';
 import { NzDatePickerModule, NzTimePickerModule } from 'ng-zorro-antd';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { PipeModule } from '../pipe/pipe.module';
 
 @NgModule({
   imports: [
@@ -12,6 +13,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule,
     NzDatePickerModule,
     NzTimePickerModule,
+    PipeModule,
     DiscountCodeDataRoutes
   ],
   declarations: [DiscountCodeDataComponent]

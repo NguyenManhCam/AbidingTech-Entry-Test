@@ -1,10 +1,12 @@
-import { Component, OnInit, TemplateRef, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewEncapsulation, OnDestroy } from '@angular/core';
 import { DiscountCodeService } from '../discount-code.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
-import { PromotionOption, ApplyWith, CustomerGroupEnum, Action, Status } from '../discount-code-enum';
-import { DiscountCode } from '../discount-code-interface';
+import { Router, ActivatedRoute } from '@angular/router';
+import { PromotionOption, ApplyWith, CustomerGroupEnum, Action, Status, CategoryType } from '../discount-code-enum';
+import { DiscountCode, Product, ProductGroup, CustomerGroup } from '../discount-code-interface';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
+import { Subscription } from 'rxjs';
+
 
 @Component({
   selector: 'app-discount-code-data',
@@ -13,7 +15,7 @@ import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
   encapsulation: ViewEncapsulation.None
 
 })
-export class DiscountCodeDataComponent implements OnInit {
+export class DiscountCodeDataComponent implements OnInit, OnDestroy {
 
   listPromotionOption = [
     { id: PromotionOption.Percent, name: 'Theo phần trăm' },
@@ -31,58 +33,180 @@ export class DiscountCodeDataComponent implements OnInit {
   myForm: FormGroup;
   discountCode = new DiscountCode;
   unit = '%';
-  isDisableMinValue = true;
-  isDisableNumberUsageLimits = true;
+  isDisableMinValue = false;
+  isDisableNumberUsageLimits = false;
   applyWithEnum = ApplyWith;
   customerGroupEnum = CustomerGroupEnum;
-  nameData = {
-    applyWithName: 'Test',
-    customerGroupName: 'Test'
-  }
   btnCopy = 'Copy link';
+  listProducts: Product[] = [];
+  listProductGroups: ProductGroup[] = [];
+  listCustomerGroups: CustomerGroup[] = [];
+  productsSelected: Product[] = [];
+  productGroupsSelected: ProductGroup[] = [];
+  customerGroupsSelected: CustomerGroup[] = [];
+  categoryTypeEnum = CategoryType;
+  statusEnum = Status;
   modalRef: BsModalRef;
+  id: number;
+  sub: Subscription;
+  created = false;
   constructor(
-    public discountCodeService: DiscountCodeService,
+    private discountCodeService: DiscountCodeService,
     private formBuilder: FormBuilder,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     private modalService: BsModalService
   ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.discountCode.id = this.activatedRoute.snapshot.params.id;
     this.createForm();
+    if (this.discountCode.id) {
+      await this.findOne(this.discountCode.id);
+    } else {
+      this.discountCode.code = this.discountCodeService.generateCode();
+    }
+    this.sub = this.myForm.valueChanges.subscribe(_ => {
+      this.setDiscount();
+    });
+    this.setForm();
+    this.getCategory();
+  }
+
+  ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
+
+  setForm() {
+    let formData = this.myForm.value;
+    Object.keys(formData).forEach(key => {
+      this.myForm.get(key).setValue(this.discountCode[key]);
+    });
+  }
+
+  setDiscount() {
+    let formData = this.myForm.value;
+    Object.keys(formData).forEach(key => {
+      this.discountCode[key] = formData[key];
+    });
+    switch (this.discountCode.applyWith) {
+      case ApplyWith.AllOrder:
+        break;
+      case ApplyWith.Product:
+        this.discountCode.discountCodeProducts = this.productsSelected.map(x => {
+          return {
+            id: x.id,
+            product: x
+          }
+        });
+        break;
+      case ApplyWith.ProductGroup:
+        this.discountCode.discountCodeProductGroups = this.productGroupsSelected.map(x => {
+          return {
+            id: x.id,
+            productGroup: x
+          }
+        });
+        break;
+      default:
+        break;
+    }
+    switch (this.discountCode.customerGroup) {
+      case CustomerGroupEnum.All:
+        break;
+      case CustomerGroupEnum.CustomerGroup:
+        this.discountCode.discountCodeCustomerGroups = this.customerGroupsSelected.map(x => {
+          return {
+            id: x.id,
+            customerGroup: x
+          }
+        });
+        break;
+      default:
+        break;
+    }
   }
 
   openModal(template: TemplateRef<any>) {
     this.modalRef = this.modalService.show(template);
   }
 
-  closeModal(template: TemplateRef<any>) {
+  closeModal() {
     this.modalRef.hide();
   }
 
+  async getCategory() {
+    let t1 = this.discountCodeService.getCategory<Product>(CategoryType.Product);
+    let t2 = this.discountCodeService.getCategory<ProductGroup>(CategoryType.ProductGroup);
+    let t3 = this.discountCodeService.getCategory<CustomerGroup>(CategoryType.CustomerGroup);
+    let rs = await Promise.all([t1, t2, t3]);
+    this.listProducts = rs[0];
+    this.listProductGroups = rs[1];
+    this.listCustomerGroups = rs[2];
+  }
+
   createForm() {
-    this.discountCode.code = this.discountCodeService.generateCode();
     this.myForm = this.formBuilder.group({
       code: [this.discountCode.code],
-      applyWith: [this.discountCode.applyWith],
-      customerGroup: [this.discountCode.customerGroup],
-      customerUsageLimits: [this.discountCode.customerUsageLimits],
-      minValue: [this.discountCode.minValue],
-      numberUsageLimits: [this.discountCode.numberUsageLimits],
       promotionOption: [this.discountCode.promotionOption],
       promotionValue: [this.discountCode.promotionValue],
+      minValue: [this.discountCode.minValue],
+      applyWith: [this.discountCode.applyWith],
+      customerGroup: [this.discountCode.customerGroup],
+      numberUsageLimits: [this.discountCode.numberUsageLimits],
+      customerUsageLimits: [this.discountCode.customerUsageLimits],
       startTime: [this.discountCode.startTime],
-      endTime: [this.discountCode.endTime],
+      endTime: [this.discountCode.endTime]
     });
   }
 
-  onSubmit() {
-    console.log(this.myForm.value);
-
+  async onSubmit() {
+    if (this.discountCode.id) {
+      this.discountCode = await this.discountCodeService.updateDiscountCode(this.discountCode.id, this.discountCode);
+    } else {
+      this.discountCode = await this.discountCodeService.postDiscountCode(this.discountCode);
+    }
   }
 
-  search(value: any) {
-    console.log(value.value);
+  async findOne(id: number) {
+    this.discountCode = await this.discountCodeService.findOne(id);
+    if (!this.discountCode) {
+      this.router.navigate(['/']);
+    }
+  }
+
+  get descs() {
+    return this.discountCodeService.getDesc(this.discountCode);
+  }
+
+  onChangeCategory(categoryType: CategoryType, id: any, isPush = true) {
+    id = parseInt(id);
+    let listCategory = [];
+    let listSelection = [];
+    switch (categoryType) {
+      case CategoryType.Product:
+        listCategory = this.productsSelected;
+        listSelection = this.listProducts;
+        break;
+      case CategoryType.ProductGroup:
+        listCategory = this.productGroupsSelected;
+        listSelection = this.listProductGroups;
+        break;
+      case CategoryType.CustomerGroup:
+        listCategory = this.customerGroupsSelected;
+        listSelection = this.listCustomerGroups;
+        break;
+      default:
+        break;
+    }
+    const category = listSelection.find(x => x.id === id);
+    const index = listCategory.indexOf(category);
+    if (isPush && index === -1) {
+      listCategory.push(category);
+    } else if (!isPush && index !== -1) {
+      listCategory.splice(index, 1);
+    }
+    this.setDiscount();
   }
 
   onChangePromotion() {
@@ -122,11 +246,11 @@ export class DiscountCodeDataComponent implements OnInit {
     this.router.navigate(['/discount-code']);
   }
 
-  async stop(template: TemplateRef<any>) {
-    this.closeModal(template);
+  async stop() {
+    this.closeModal();
     const isOk = await this.discountCodeService.patchDiscountCode(1, Action.Stop);
     if (isOk) {
-
+      this.discountCode.status = Status.StopApplying;
     }
   }
 

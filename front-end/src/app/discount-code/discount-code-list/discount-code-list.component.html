@@ -8,7 +8,25 @@
     </div>
   </div>
 </div>
-<div *ngIf="dataPage" class="row mt-2">
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a (click)="pageParams.status = undefined; getData()" [ngClass]="{'active': pageParams.status === undefined}"
+      class="nav-link" href="javascript:;">Tất cả khuyến mãi</a>
+  </li>
+  <li *ngFor="let status of discountCodeService.listStatus" class="nav-item">
+    <a (click)="pageParams.status = status.id; getData()" [ngClass]="{'active': pageParams.status === status.id}"
+      class="nav-link" href="javascript:;">{{status.name}}</a>
+  </li>
+</ul>
+<div class="input-group pt-3">
+  <div class="input-group-append">
+    <button (click)="pageParams.code = searchProduct.value; getData()" type="button"
+      class="btn btn-outline-secondary">Lọc khuyến
+      mãi</button>
+  </div>
+  <input #searchProduct type="text" class="form-control" placeholder="Tìm kiếm theo mã khuyến mãi">
+</div>
+<div *ngIf="dataPage?.discountCodes.length" class="row mt-2">
   <div class="col-12">
     <table class="table">
       <thead>
@@ -26,9 +44,13 @@
                 aria-haspopup="true" aria-expanded="false">
               </button>
               <div class="dropdown-menu">
-                <a class="dropdown-item" href="javascript:;">Tiếp tục khuyến mãi</a>
-                <a class="dropdown-item" href="javascript:;">Ngừng khuyến mãi</a>
-                <a class="dropdown-item" href="javascript:;">Xóa khuyến mãi</a>
+                <a (click)="updateStatus(actionEnum.Continue)" class="dropdown-item" href="javascript:;">Tiếp tục khuyến
+                  mãi</a>
+                <a (click)="updateStatus(actionEnum.Stop)" class="dropdown-item" href="javascript:;">Ngừng khuyến
+                  mãi</a>
+                <a (click)="delete()" class="dropdown-item" href="javascript:;">Xóa khuyến mãi</a>
+                <a *ngIf="selectedData.length === 1" class="dropdown-item" [routerLink]="['edit', selectedData[0]]">Sửa
+                  khuyến mãi</a>
               </div>
             </div>
           </th>
@@ -49,9 +71,9 @@
             </div>
           </td>
           <td>
-            <div><a>{{item.code}}</a></div>
+            <div><a href="javascript:;">{{item.code}}</a></div>
             <div>
-              <span *ngFor="let desc of discountCodeService.getDesc(item, null, false); let i=index">
+              <span *ngFor="let desc of discountCodeService.getDesc(item, false); let i=index">
                 <ng-container *ngIf="i === 0; else elseTemplate">
                   {{desc}}&nbsp;
                 </ng-container>

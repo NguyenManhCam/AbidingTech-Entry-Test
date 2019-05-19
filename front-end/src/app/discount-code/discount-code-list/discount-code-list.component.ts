@@ -11,9 +11,9 @@ import { DiscountCode, Paging, PagingParams } from '../discount-code-interface';
 export class DiscountCodeListComponent implements OnInit {
 
   statusEnum = Status;
+  actionEnum = Action;
   data: DiscountCode[] = [];
   selectedData: number[] = [];
-  isAllChecked = false;
   isIndeterminate = false;
   dataPage: Paging;
   pageParams = new PagingParams;
@@ -22,13 +22,6 @@ export class DiscountCodeListComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // for (let index = 0; index < 10; index++) {
-    //   let data = new DiscountCode;
-    //   data.id = index;
-    //   data.promotionValue = index;
-    //   data.minValue = index;
-    //   this.data.push(data);
-    // }
     this.getData();
   }
 
@@ -39,25 +32,25 @@ export class DiscountCodeListComponent implements OnInit {
   }
 
   onCheckAll(checked: boolean): void {
+    let data = this.data.map(x => x.id);
     if (checked) {
-      this.selectedData = this.data.map(x => x.id);
+      this.selectedData = this.selectedData.concat(data);
     } else {
-      this.selectedData = [];
+      this.selectedData = this.selectedData.filter(id => !data.includes(id))
     }
   }
 
   onCheck(checked: boolean, id: number): void {
     let index = this.selectedData.indexOf(id);
-    if (checked) {
-      if (index === -1) {
-        this.selectedData.push(id);
-      }
-    } else {
-      if (index !== -1) {
-        this.selectedData.splice(index, 1);
-      }
+    if (checked && index === -1) {
+      this.selectedData.push(id);
+    } else if (!checked && index !== -1) {
+      this.selectedData.splice(index, 1);
     }
-    this.isAllChecked = this.selectedData.length !== 0;
+  }
+
+  get isAllChecked() {
+    return this.data.map(d => d.id).some(id => this.selectedData.includes(id));
   }
 
   isSelected(id: number): boolean {

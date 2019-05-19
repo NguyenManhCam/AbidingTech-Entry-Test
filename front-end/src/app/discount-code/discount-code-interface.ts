@@ -5,9 +5,9 @@ export class DiscountCode {
     code: string;
     promotionOption: PromotionOption = PromotionOption.Percent
     promotionValue: number;
-    minValue: number;
+    minValue?: number;
     applyWith: ApplyWith = ApplyWith.AllOrder;
-    customerGroup: number;
+    customerGroup: CustomerGroupEnum = CustomerGroupEnum.All;
     numberUsageLimits?: number;
     customerUsageLimits: boolean = true;
     status: Status = Status.NotYetApplied;
@@ -21,7 +21,6 @@ export class DiscountCode {
 
 export class DiscountCodeCustomerGroup {
     customerGroup: CustomerGroup;
-    discountCodeId: number;
     id: number;
 }
 
@@ -32,7 +31,6 @@ export class CustomerGroup {
 
 export class DiscountCodeProductGroup {
     productGroup: ProductGroup;
-    discountCodeId: number;
     id: number;
 }
 
@@ -43,7 +41,6 @@ export class ProductGroup {
 
 export class DiscountCodeProduct {
     product: Product;
-    discountCodeId: number;
     id: number;
 }
 
@@ -63,4 +60,6 @@ export interface Paging {
 export class PagingParams {
     pageNumber: number = 1;
     pageSize: number = 10;
+    status: Status;
+    code: string = '';
 }
