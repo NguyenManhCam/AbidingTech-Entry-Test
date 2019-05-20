@@ -35,6 +35,7 @@ export class DiscountCodeService {
   ) { }
 
   getDiscountCode(params: any = new PagingParams): Promise<Paging> {
+    if (params.status === null) delete (params.status);
     const options = { headers: this.httpOptions.headers, params: params };
     return this.http.get<Paging>(this.baseUrl, options).toPromise();
   }
@@ -53,7 +54,7 @@ export class DiscountCodeService {
   }
 
   patchDiscountCode(id: number, action: Action): Promise<boolean> {
-    return this.http.patch<boolean>(`${this.baseUrl}/${id}`, { action: action }, this.httpOptions).toPromise();
+    return this.http.patch<boolean>(`${this.baseUrl}/${id}?action=${action}`, this.httpOptions).toPromise();
   }
 
   deleteDiscountCode(id: number): Promise<boolean> {

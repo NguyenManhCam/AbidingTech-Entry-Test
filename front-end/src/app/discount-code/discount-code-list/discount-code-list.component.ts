@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef } from '@angular/core';
 import { DiscountCodeService } from '../discount-code.service';
 import { Status, Action } from '../discount-code-enum';
 import { DiscountCode, Paging, PagingParams } from '../discount-code-interface';
+import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-discount-code-list',
@@ -17,8 +18,11 @@ export class DiscountCodeListComponent implements OnInit {
   isIndeterminate = false;
   dataPage: Paging;
   pageParams = new PagingParams;
+  modalRef: BsModalRef;
+  copyCode = '';
   constructor(
-    public discountCodeService: DiscountCodeService
+    public discountCodeService: DiscountCodeService,
+    private modalService: BsModalService
   ) { }
 
   ngOnInit() {
@@ -58,14 +62,29 @@ export class DiscountCodeListComponent implements OnInit {
     return index !== -1;
   }
 
+  openModal(template: TemplateRef<any>, code: string) {
+    this.copyCode = code;
+    this.modalRef = this.modalService.show(template);
+  }
+
+  closeModal() {
+    this.modalRef.hide();
+  }
+
+  copy(element: any) {
+    element.select();
+    document.execCommand("copy");
+  }
+
   async updateStatus(action: Action) {
     const tasks = this.selectedData.map(id => {
       return this.discountCodeService.patchDiscountCode(id, action);
     });
     const rs = await Promise.all(tasks);
     if (rs.every(isOk => isOk)) {
-      console.log('OK');
+
     }
+    this.getData(this.dataPage.pageNumber);
   }
 
   async delete() {
@@ -74,7 +93,8 @@ export class DiscountCodeListComponent implements OnInit {
     });
     const rs = await Promise.all(tasks);
     if (rs.every(isOk => isOk)) {
-      console.log('OK');
+      this.selectedData = [];
     }
+    this.getData(this.dataPage.pageNumber);
   }
 }

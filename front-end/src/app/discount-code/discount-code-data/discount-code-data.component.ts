@@ -49,7 +49,20 @@ export class DiscountCodeDataComponent implements OnInit, OnDestroy {
   modalRef: BsModalRef;
   id: number;
   sub: Subscription;
-  created = false;
+  isShowAlert = false;
+  titleAlear = 'tạo';
+  dataConfirm = {
+    title: '',
+    content: '',
+    ok: '',
+    cancel: ''
+  }
+  dataStop = {
+    title: '',
+    content: '',
+    ok: '',
+  }
+
   constructor(
     private discountCodeService: DiscountCodeService,
     private formBuilder: FormBuilder,
@@ -128,6 +141,19 @@ export class DiscountCodeDataComponent implements OnInit, OnDestroy {
   }
 
   openModal(template: TemplateRef<any>) {
+    if (this.discountCode.status === Status.Applied) {
+      this.dataStop = {
+        title: `Ngừng khuyến mãi ${this.discountCode.code}`,
+        content: `Bạn có chắc chắn muốn ngừng khuyến mãi ${this.discountCode.code}? Khuyến mãi sẽ được cho hết hạn ngay.`,
+        ok: 'Ngừng'
+      }
+    } else {
+      this.dataStop = {
+        title: 'Tiếp tục khuyến mãi',
+        content: `Bạn có chắc chắn muốn tiếp tục khuyến mãi ${this.discountCode.code}? Khuyến mãi sẽ dùng được ngay.`,
+        ok: 'Tiếp tục'
+      }
+    }
     this.modalRef = this.modalService.show(template);
   }
 
@@ -160,12 +186,35 @@ export class DiscountCodeDataComponent implements OnInit, OnDestroy {
     });
   }
 
-  async onSubmit() {
+  onSubmit(template: TemplateRef<any>) {
+    if (this.discountCode.id) {
+      this.dataConfirm = {
+        title: 'Cập nhật khuyến mãi',
+        content: `Bạn có chắc chắn muốn cập nhật lại mã khuyến mãi ${this.discountCode.code} này không?`,
+        ok: 'Cập nhật',
+        cancel: 'Hủy'
+      };
+    } else {
+      this.dataConfirm = {
+        title: 'Tạo mới khuyến mãi',
+        content: `Bạn có chắc chắn muốn tạo mới mã khuyến mãi ${this.discountCode.code} này không?`,
+        ok: 'Tạo mới',
+        cancel: 'Không'
+      };
+    }
+    this.openModal(template);
+  }
+
+  async submit() {
+    this.closeModal();
     if (this.discountCode.id) {
       this.discountCode = await this.discountCodeService.updateDiscountCode(this.discountCode.id, this.discountCode);
+      this.titleAlear = 'cập nhật';
     } else {
       this.discountCode = await this.discountCodeService.postDiscountCode(this.discountCode);
+      this.titleAlear = 'tạo';
     }
+    this.isShowAlert = true;
   }
 
   async findOne(id: number) {
@@ -246,11 +295,12 @@ export class DiscountCodeDataComponent implements OnInit, OnDestroy {
     this.router.navigate(['/discount-code']);
   }
 
-  async stop() {
+  async updateStatus() {
     this.closeModal();
-    const isOk = await this.discountCodeService.patchDiscountCode(1, Action.Stop);
+    const action = this.discountCode.status === Status.Applied ? Action.Stop : Action.Continue;
+    const isOk = await this.discountCodeService.patchDiscountCode(this.discountCode.id, action);
     if (isOk) {
-      this.discountCode.status = Status.StopApplying;
+      this.findOne(this.discountCode.id);
     }
   }
 

@@ -27,7 +27,7 @@ namespace back_end.Controllers
                     _context.ProductGroups.Add(new ProductGroup { Name = $"Product Group {i + 1}" });
                     _context.CustomerGroups.Add(new CustomerGroup { Name = $"Customer Group {i + 1}" });
                 }
-                for (int i = 0; i < 50; i++)
+                for (int i = 0; i < 15; i++)
                 {
                     _context.DiscountCodes.Add(new DiscountCode { Code = $"Code {i + 1}" });
                 }
@@ -45,7 +45,8 @@ namespace back_end.Controllers
             .Include(x => x.DiscountCodeProductGroups)
             .ThenInclude(x => x.ProductGroup)
             .Include(x => x.DiscountCodeCustomerGroups)
-            .ThenInclude(x => x.CustomerGroup);
+            .ThenInclude(x => x.CustomerGroup)
+            .OrderByDescending(x => x.Id);
             if (paging.Code != null && paging.Code != String.Empty)
             {
                 query = query.Where(x => x.Code == paging.Code);

@@ -10,8 +10,9 @@
 </div>
 <ul class="nav nav-tabs">
   <li class="nav-item">
-    <a (click)="pageParams.status = undefined; getData()" [ngClass]="{'active': pageParams.status === undefined}"
-      class="nav-link" href="javascript:;">Tất cả khuyến mãi</a>
+    <a (click)="pageParams.status = null; getData()"
+      [ngClass]="{'active': pageParams.status === null || pageParams.status === undefined}" class="nav-link"
+      href="javascript:;">Tất cả khuyến mãi</a>
   </li>
   <li *ngFor="let status of discountCodeService.listStatus" class="nav-item">
     <a (click)="pageParams.status = status.id; getData()" [ngClass]="{'active': pageParams.status === status.id}"
@@ -71,7 +72,7 @@
             </div>
           </td>
           <td>
-            <div><a href="javascript:;">{{item.code}}</a></div>
+            <div><a (click)="openModal(templateShare, item.code)" href="javascript:;">{{item.code}}</a></div>
             <div>
               <span *ngFor="let desc of discountCodeService.getDesc(item, false); let i=index">
                 <ng-container *ngIf="i === 0; else elseTemplate">
@@ -83,8 +84,9 @@
               </span>
             </div>
           </td>
-          <td><span class="badge" [ngClass]="{'badge-secondary': 0 === statusEnum.NotYetApplied,'badge-success': 1 === statusEnum.NotYetApplied,'badge-warning':
-              1 === statusEnum.NotYetApplied}">{{item.status | discountCodeStatus}}</span></td>
+          <td><span class="badge" [ngClass]="{'badge-secondary': item.status === statusEnum.NotYetApplied,'badge-success': item.status ===
+              statusEnum.Applied,'badge-warning':
+              item.status === statusEnum.StopApplying}">{{item.status | discountCodeStatus}}</span></td>
           <td class="text-center">
             {{item.numberUsageLimits ? (item.amountUsed | number) + '/' + (item.numberUsageLimits | number): item.amountUsed | number}}
           </td>
@@ -96,3 +98,28 @@
     <app-pagination [paging]="dataPage" (onChange)="getData($event)"></app-pagination>
   </div>
 </div>
+
+<ng-template #templateShare>
+  <div class="modal-header">
+    <h4 class="modal-title pull-left">Linh chia sẻ khuyến mãi</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>Hãy chia sẻ link mã khuyến mãi qua email hay mạng xã hội. Khuyến mãi của bạn sẽ được tự động áp dụng ở trang
+      thanh
+      toán.</p>
+    <div class="row">
+      <div class="col-md-9">
+        <input #link type="text" class="form-control" value="https://angular.io/discount/{{copyCode}}" readonly>
+      </div>
+      <div class="col-md-3">
+        <button id="btn-copy" (click)="copy(link)" type="button" class="btn btn-info">Copy link</button>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button (click)="closeModal()" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
+  </div>
+</ng-template>

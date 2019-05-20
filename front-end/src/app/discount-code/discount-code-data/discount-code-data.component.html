@@ -5,8 +5,9 @@
      </h4>
      <h5 class="d-flex justify-content-between align-items-center mb-3">
        <span>{{discountCode.code}}</span>
-       <span *ngIf="discountCode.id" class="badge float-right" [ngClass]="{'badge-secondary': 0 === statusEnum.NotYetApplied,'badge-success': 1 === statusEnum.NotYetApplied,'badge-warning':
-              1 === statusEnum.NotYetApplied}">{{discountCode.status | discountCodeStatus}}</span>
+       <span *ngIf="discountCode.id" class="badge float-right" [ngClass]="{'badge-secondary': discountCode.status === statusEnum.NotYetApplied,'badge-success':
+         discountCode.status === statusEnum.Applied,'badge-warning':
+              discountCode.status === statusEnum.StopApplying}">{{discountCode.status | discountCodeStatus}}</span>
      </h5>
      <ul class="list-group">
        <li *ngFor="let desc of descs" class="list-group-item">
@@ -20,17 +21,20 @@
      </ng-container>
      <ng-container *ngIf="discountCode.id">
        <h4 class="mb-3">Mã khuyến mãi: {{discountCode.code}}</h4>
-       <span (click)="openModal(templateStop)" class="oi oi-ban mr-3">&nbsp;Ngừng khuyến mãi</span>
-       <span (click)="openModal(templateShare)" class="oi oi-share-boxed">&nbsp;Chia sẻ</span>
+       <span *ngIf=" this.discountCode.status !== statusEnum.Applied" (click)="openModal(templateStop)"
+         class="oi oi-media-play mr-3 poiter">&nbsp;Tiếp tục khuyến mãi</span>
+       <span *ngIf=" this.discountCode.status === statusEnum.Applied" (click)="openModal(templateStop)"
+         class="oi oi-ban mr-3 poiter">&nbsp;Ngừng khuyến mãi</span>
+       <span (click)="openModal(templateShare)" class="oi oi-share-boxed poiter">&nbsp;Chia sẻ</span>
        <div class="alert alert-success mt-3" role="alert">
-         <h4 class="alert-heading">{{discountCode.code}} đã được tạo.</h4>
+         <h4 class="alert-heading">{{discountCode.code}} đã được {{titleAlear}}.</h4>
          <p>Hãy chia sẻ link mã khuyến mãi qua email hay mạng xã hội. Khuyến mãi của bạn sẽ được sử dụng ở trang thanh
            toán</p>
          <hr>
          <button (click)="openModal(templateShare)" type="button" class="btn btn-light">Chia sẻ link</button>
        </div>
      </ng-container>
-     <form *ngIf="myForm" class="needs-validation" [formGroup]="myForm" (submit)="onSubmit()" novalidate>
+     <form *ngIf="myForm" class="needs-validation" [formGroup]="myForm" (submit)="onSubmit(templateConfirm)" novalidate>
        <ul class="nav nav-tabs" id="myTab" role="tablist">
          <li class="nav-item">
            <a class="nav-link active" id="discount-code-tab" data-toggle="tab" href="#discount-code" role="tab"
@@ -230,24 +234,24 @@
 
  <ng-template #templateStop>
    <div class="modal-header">
-     <h4 class="modal-title pull-left">Ngừng khuyến mãi</h4>
-     <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal(templateStop)">
+     <h4 class="modal-title pull-left">{{dataStop.title}}</h4>
+     <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal()">
        <span aria-hidden="true">&times;</span>
      </button>
    </div>
    <div class="modal-body">
-     Bạn có chắc chắn muốn ngừng khuyến mãi? Khuyến mãi sẽ được cho hết hạn ngay.
+     {{dataStop.content}}
    </div>
    <div class="modal-footer">
-     <button (click)="closeModal(templateStop)" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
-     <button (click)="stop(templateStop)" type="button" class="btn btn-info">Ngừng</button>
+     <button (click)="closeModal()" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
+     <button (click)="updateStatus()" type="button" class="btn btn-info">{{dataStop.ok}}</button>
    </div>
  </ng-template>
 
  <ng-template #templateShare>
    <div class="modal-header">
      <h4 class="modal-title pull-left">Linh chia sẻ khuyến mãi</h4>
-     <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal(templateShare)">
+     <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal()">
        <span aria-hidden="true">&times;</span>
      </button>
    </div>
@@ -262,11 +266,28 @@
        </div>
        <div class="col-md-3">
          <button id="btn-copy" (mouseout)="btnCopy='Copy link'" (click)="copy(link);btnCopy='Copied'" type="button"
-           class="btn btn-info">{{btnCopy}}</button>
+           class="btn btn-info">Copy link</button>
        </div>
      </div>
    </div>
    <div class="modal-footer">
-     <button (click)="closeModal(templateShare)" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
+     <button (click)="closeModal()" type="button" class="btn btn-light" data-dismiss="modal">Hủy</button>
+   </div>
+ </ng-template>
+
+ <ng-template #templateConfirm>
+   <div class="modal-header">
+     <h4 class="modal-title pull-left">{{dataConfirm.title}}</h4>
+     <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal()">
+       <span aria-hidden="true">&times;</span>
+     </button>
+   </div>
+   <div class="modal-body">
+     {{dataConfirm.content}}
+   </div>
+   <div class="modal-footer">
+     <button (click)="closeModal()" type="button" class="btn btn-light"
+       data-dismiss="modal">{{dataConfirm.cancel}}</button>
+     <button (click)="submit()" type="button" class="btn btn-info">{{dataConfirm.ok}}</button>
    </div>
  </ng-template>

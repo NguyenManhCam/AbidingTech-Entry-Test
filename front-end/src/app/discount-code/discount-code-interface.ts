@@ -59,7 +59,7 @@ export interface Paging {
 
 export class PagingParams {
     pageNumber: number = 1;
-    pageSize: number = 10;
-    status: Status;
+    pageSize: number = 5;
+    status: Status = null;
     code: string = '';
 }
